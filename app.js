@@ -6,17 +6,17 @@ const port = process.env.PORT || 3000;
 const app = express();
 dotenv.config();
 
-import authRoutes from './routes/authRoutes.js';
-import postsRoutes from './routes/postsRoutes.js';
-import usersRoutes from './routes/usersRoutes.js';
+import authRouter from './routes/authRoutes.js';
+import postsRouter from './routes/postsRoutes.js';
+import usersRouter from './routes/usersRoutes.js';
 
 app.use(cors({
     origin: "http://localhost:8000",
 }));
 
-app.use('/auth', authRoutes);
-app.use('/posts', postsRoutes);
-app.use('/users', usersRoutes);
+app.use('/auth', authRouter);
+app.use('/posts', postsRouter);
+app.use('/users', usersRouter);
 
 
 app.get('/', (req, res) => {
