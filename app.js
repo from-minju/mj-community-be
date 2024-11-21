@@ -10,9 +10,10 @@ import authRouter from './routes/authRoutes.js';
 import postsRouter from './routes/postsRoutes.js';
 import usersRouter from './routes/usersRoutes.js';
 
-app.use(cors({
-    origin: "http://localhost:8000",
-}));
+app.use(
+    express.json(),
+    cors({origin: "http://localhost:8000"})
+ );
 
 app.use('/auth', authRouter);
 app.use('/posts', postsRouter);
