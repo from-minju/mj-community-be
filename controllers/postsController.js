@@ -1,10 +1,19 @@
-import { createPost, getAllPosts, getPostById, editPost, deletePost} from "../models/postModel.js";
+import { 
+    createPost, getAllPosts, getPostById, editPost, deletePost,
+    getCommentsByPostId, createComment,
+
+} from "../models/postModel.js";
 
 function getCurrentDate() {
     let today = new Date();
     today.setHours(today.getHours() + 9); // 미국시간 기준이니까 9를 더해주면 대한민국 시간됨
     return today.toISOString().replace("T", " ").substring(0, 19); // 문자열로 바꿔주고 T를 빈칸으로 바꿔주면 yyyy-mm-dd hh:mm:ss 이런 형식 나옴
 }
+
+/**
+ * 게시물
+ * --------------------------------------------------
+ */
 
 // GET 게시물 목록
 export const getPostsController =async(req, res) => {
@@ -106,4 +115,55 @@ export const deletePostController = async(req, res) => {
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
     }
+};
+
+
+/**
+ * 댓글
+ * --------------------------------------------------
+ */
+
+export const getCommentsController = async(req, res) => {
+    try{
+        const postId = req.params.postId;
+        const comments = await getCommentsByPostId(postId);
+
+        res.status(200).json({
+            message: "댓글 목록 조회 성공",
+            data: comments
+        });
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+};
+
+export const createCommentController = async(req, res) => {
+    try{
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+
+};
+
+export const editCommentController = async(req, res) => {
+    try{
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+
+};
+
+export const deleteCommentController = async(req, res) => {
+    try{
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+
 };

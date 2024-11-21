@@ -6,7 +6,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const postsFilePath = path.join(__dirname, '../data/posts.json');
+const commentsFilePath = path.join(__dirname, '../data/comments.json');
 
+/**
+ * 게시물
+ * --------------------------------------------------
+ */
 
 export const getAllPosts = async() => {
     try{
@@ -94,4 +99,29 @@ export const deletePost = async (postId) => {
     }catch(error){
         throw error;
     }
+};
+
+
+/**
+ * 댓글
+ * --------------------------------------------------
+ */
+const getAllComments = async() => {
+    const data = await fs.readFile(commentsFilePath, 'utf-8');
+    return JSON.parse(data);
+};
+
+export const getCommentsByPostId = async(postId) => {
+    try{
+        const allComments = await getAllComments();
+        const postComments = allComments[postId];
+
+        return postComments;
+    }catch(error){
+        throw error;
+    }
+};
+
+export const createComment = async(postId, newCommentData) => {
+
 };
