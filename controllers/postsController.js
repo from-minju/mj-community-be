@@ -1,4 +1,4 @@
-import { createPost, getAllPosts, getPostById, editPost} from "../models/postModel.js";
+import { createPost, getAllPosts, getPostById, editPost, deletePost} from "../models/postModel.js";
 
 function getCurrentDate() {
     let today = new Date();
@@ -8,8 +8,6 @@ function getCurrentDate() {
 
 // GET 게시물 목록
 export const getPostsController =async(req, res) => {
-    const postId = parseInt(req.params.postId);
-
     try{
         const postsData = await getAllPosts();
         res.json({
@@ -95,3 +93,17 @@ export const editPostController = async(req, res) => {
     //TODO: 사용자 Id로 프로필사진, 닉네임 가져오기/ posts.json에도 사용자id만 넣어두기.
 
 }
+
+
+export const deletePostController = async(req, res) => {
+    const postId = parseInt(req.params.postId);
+
+    try{
+        await deletePost(postId);
+        res.status(200).json({message: "게시물 삭제 성공"});
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+};

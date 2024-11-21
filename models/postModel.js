@@ -45,7 +45,7 @@ export const createPost = async(newPost) => {
     posts.push(newPost);
 
     return new Promise((resolve, reject) => {    
-        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf8', (error) => { //2: 한줄로 저장되지 않게 하기 위함. 2번 들여쓰기.
+        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8', (error) => { //2: 한줄로 저장되지 않게 하기 위함. 2번 들여쓰기.
             if (error) return reject(error);
             return resolve(postId);
         });
@@ -56,7 +56,7 @@ export const createPost = async(newPost) => {
 export const editPost = async (postId, updatedPostData) => {
     const posts = await getAllPosts();
     const postIndex = posts.findIndex((post) => post.postId === postId);
-    console.log(postIndex);
+
     if (postIndex === -1) {
         throw new Error('게시물을 찾을 수 없습니다.');
     }
@@ -67,13 +67,33 @@ export const editPost = async (postId, updatedPostData) => {
     }; 
 
     return new Promise((resolve, reject) => {
-        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf8', (error) => {
+        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8', (error) => {
             if(error){
                 return reject(err);
             }
             resolve();
         });
     });
+};
 
+
+export const deletePost = async (postId) => {
+    const posts = await getAllPosts();
+    const postIndex = posts.findIndex((post) => post.postId === postId);
+
+    if (postIndex === -1) {
+        throw new Error('게시물을 찾을 수 없습니다.');
+    }
+
+    posts.splice(postIndex, 1);
+
+    return new Promise((resolve, reject) => {
+        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8', (error) => {
+            if(error){
+                return reject(err);
+            }
+            resolve();
+        })
+    });
 
 };
