@@ -1,0 +1,16 @@
+[
+  {
+    "userId": 1,
+    "email": "snowball@mail.com",
+    "password": "Abc123456!",
+    "nickname": "스노우볼",
+    "profileImage": "/uploads/bunny.jpg"
+  },
+  {
+    "userId": 2,
+    "email": "test@mail.com",
+    "password": "Abc123456!",
+    "nickname": "닉네임",
+    "profileImage": "https://image.kr/img.jpg"
+  }
+]

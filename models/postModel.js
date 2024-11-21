@@ -53,7 +53,7 @@ export const createPost = async(newPost) => {
 };
 
 
-export const editPost = async (postId, updatedPostData) => {
+export const editPost = async (postId, editedPostData) => {
     const posts = await getAllPosts();
     const postIndex = posts.findIndex((post) => post.postId === postId);
 
@@ -63,7 +63,7 @@ export const editPost = async (postId, updatedPostData) => {
 
     posts[postIndex] = {
         ...posts[postIndex],
-        ...updatedPostData,
+        ...editedPostData,
     }; 
 
     return new Promise((resolve, reject) => {

@@ -74,13 +74,13 @@ export const editPostController = async(req, res) => {
     const {title, content, postImage} = req.body;
     
     try{
-        const updatedPostData = {
+        const editedPostData = {
             title: title,
             content: content,
             postImage: postImage || null,
         }
 
-        await editPost(postId, updatedPostData);
+        await editPost(postId, editedPostData);
         res.status(200).json({
             message: "게시물 수정 성공",
             data: {postId: postId}
