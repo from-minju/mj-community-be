@@ -1,5 +1,31 @@
 [
   {
+    "postId": 1,
+    "title": "안녕하세요?",
+    "content": "그러게!!!!!!!!!!!!!!!!!!!!!!!!!!",
+    "contentImage": "/images/impsb.JPG",
+    "createdAt": "2024-11-08 02:06:30",
+    "likes": 123450,
+    "comments": 4500,
+    "views": 50000,
+    "userId": 1,
+    "nickname": "사람",
+    "profileImage": "/images/special.jpeg"
+  },
+  {
+    "postId": 2,
+    "title": "추워어어어어어어",
+    "content": "발이 시려워...ㅠㅠㅠㅠㅠㅠ</br>날씨가 너무 추워졌어ㅠㅠㅠㅠㅜㅜㅜㅜㅠㅠㅜㅠㅜㅠㅜㅠ",
+    "contentImage": "",
+    "createdAt": "2024-11-08 02:10:40",
+    "likes": 30,
+    "comments": 5000,
+    "views": 10000,
+    "userId": 2,
+    "nickname": "수족냉증",
+    "profileImage": "/images/pubao.JPG"
+  },
+  {
     "postId": 3,
     "title": "짜장면 습격",
     "content": "습!!!!격!!!!!",
