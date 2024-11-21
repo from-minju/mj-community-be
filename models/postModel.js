@@ -17,6 +17,7 @@ export const getAllPosts = () => {
     });
 };
 
+
 export const getPostById = async(postId) => {
     try{
         const postsData = await getAllPosts();
@@ -31,6 +32,7 @@ export const getPostById = async(postId) => {
     }
 };
 
+
 /**
  * 게시물 생성
  * @returns postId
@@ -43,10 +45,35 @@ export const createPost = async(newPost) => {
     posts.push(newPost);
 
     return new Promise((resolve, reject) => {    
-        fs.writeFile(postsFilePath, JSON.stringify(posts), (error) => {
+        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf8', (error) => { //2: 한줄로 저장되지 않게 하기 위함. 2번 들여쓰기.
             if (error) return reject(error);
             return resolve(postId);
         });
     })
-    
+};
+
+
+export const editPost = async (postId, updatedPostData) => {
+    const posts = await getAllPosts();
+    const postIndex = posts.findIndex((post) => post.postId === postId);
+    console.log(postIndex);
+    if (postIndex === -1) {
+        throw new Error('게시물을 찾을 수 없습니다.');
+    }
+
+    posts[postIndex] = {
+        ...posts[postIndex],
+        ...updatedPostData,
+    }; 
+
+    return new Promise((resolve, reject) => {
+        fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf8', (error) => {
+            if(error){
+                return reject(err);
+            }
+            resolve();
+        });
+    });
+
+
 };

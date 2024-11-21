@@ -1,4 +1,4 @@
-import { createPost, getAllPosts, getPostById } from "../models/postModel.js";
+import { createPost, getAllPosts, getPostById, editPost} from "../models/postModel.js";
 
 function getCurrentDate() {
     let today = new Date();
@@ -28,7 +28,7 @@ export const getPostController = async(req, res) => {
 
     try{
         const postData = await getPostById(postId);
-        res.json({
+        res.status(200).json({
             message: "게시물 상세 조회 성공",
             data: postData
         });
@@ -47,13 +47,14 @@ export const createPostController = async(req, res) => {
         "postId": "",
         "title": title,
         "content": content,
-        "contentImg": postImage,
+        "postImage": postImage,
         "createdAt": getCurrentDate(), 
         "likes": 0,
         "comments": 0,
         "views": 0,
-        "author": "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
-        "profileImg": "" // TODO:
+        "userId": null,
+        "nickname": "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
+        "profileImage": null // TODO:
     }
     
     try{
@@ -67,6 +68,30 @@ export const createPostController = async(req, res) => {
         res.status(500).json({message: "서버 에러 발생"});
     }
 
-
-     
 };
+
+// TODO: 게시글 수정
+export const editPostController = async(req, res) => {
+    const postId = parseInt(req.params.postId);
+    const {title, content, postImage} = req.body;
+    
+    try{
+        const updatedPostData = {
+            title: title,
+            content: content,
+            postImage: postImage || null,
+        }
+
+        await editPost(postId, updatedPostData);
+        res.status(200).json({
+            message: "게시물 수정 성공",
+            data: {postId: postId}
+        });
+
+    } catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+    //TODO: 사용자 Id로 프로필사진, 닉네임 가져오기/ posts.json에도 사용자id만 넣어두기.
+
+}
