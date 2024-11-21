@@ -3,7 +3,7 @@ import { editProfileController, changePasswordController, getUserProfileControll
 
 const router = express.Router();
 
-router.get('/:userId', getUserProfileController);
+router.get('/:userId/profile', getUserProfileController);
 router.put('/:userId/profile', editProfileController);
 router.patch('/:userId/profile/password', changePasswordController);
 

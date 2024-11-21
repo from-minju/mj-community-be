@@ -16,6 +16,7 @@ const getAllUsers = async() => {
     }
 };
 
+
 export const getUserById = async (userId) => {
     try{
         const users = await getAllUsers();
@@ -29,6 +30,7 @@ export const getUserById = async (userId) => {
         throw error;
     }
 };
+
 
 export const editProfile = async (userId, editedUserData) => {
     try{
@@ -47,6 +49,24 @@ export const editProfile = async (userId, editedUserData) => {
         await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf-8'); 
 
     } catch(error){
+        throw error;
+    }
+};
+
+
+export const changePassword = async (userId, newPassword) => {
+    try{
+        const users = await getAllUsers();
+        const userIndex = users.findIndex(user => user.userId === userId);
+
+        users[userIndex] = {
+            ...users[userIndex],
+            password: newPassword,
+        }
+
+        await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
+
+    }catch(error){
         throw error;
     }
 };

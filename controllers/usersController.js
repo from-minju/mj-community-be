@@ -1,4 +1,4 @@
-import { editProfile, getUserById } from "../models/userModel.js";
+import { editProfile, getUserById, changePassword } from "../models/userModel.js";
 
 export const getUserProfileController = async (req, res) => {
     try{
@@ -38,6 +38,17 @@ export const editProfileController = async(req, res) => {
 };
 
 
-export const changePasswordController = () => {
+export const changePasswordController = async(req, res) => {
+    try{
+        const userId = parseInt(req.params.userId);
+        const newPassword = req.body.password;
 
+        await changePassword(userId, newPassword);
+
+        res.status(200).json({message: "비밀번호 변경 성공"});
+
+    } catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
 };
