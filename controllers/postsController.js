@@ -1,7 +1,6 @@
 import { 
     createPost, getAllPosts, getPostById, editPost, deletePost,
-    getCommentsByPostId, createComment, editComment,
-    deleteComment,
+    getCommentsByPostId, createComment, editComment, deleteComment,
 
 } from "../models/postModel.js";
 
@@ -194,4 +193,20 @@ export const deleteCommentController = async(req, res) => {
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
     }
+};
+
+
+/**
+ * 좋아요
+ * --------------------------------------------------
+ */
+
+export const likePostController = async(req, res) => {
+    const postId = req.params.postId;
+    //TODO: 현재 사용자ID가 좋아요 
+};
+
+export const unlikePostController = async(req, res) => {
+    const postId = req.params.postId;
+    //TODO: 현재 사용자ID가 좋아요 취소
 };

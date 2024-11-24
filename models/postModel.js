@@ -177,3 +177,17 @@ export const deleteComment = async(postId, commentId) => {
         throw error;
     }
 };
+
+
+/**
+ * 좋아요
+ * --------------------------------------------------
+ */
+
+export const likePost = async() => {
+
+};
+
+export const unlikePost = async() => {
+
+};
