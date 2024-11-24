@@ -47,9 +47,8 @@ export const getPostById = async(postId) => {
 export const createPost = async(newPost) => {
     try{
         const posts = await getAllPosts();
-        const postId = v4();
 
-        newPost.postId = postId;
+        newPost.postId = v4();
         posts.push(newPost);
 
         await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
@@ -125,23 +124,39 @@ export const getCommentsByPostId = async(postId) => {
 
 export const createComment = async(postId, newCommentData) => {
     try{
-        /**
-         * 1. 전체 댓글 조회
-         * 2. 게시물에 대한 모든 댓글 조회
-         * 3. 
-         */
         const allComments = await getAllComments();
-        const commentId = 0; //TODO: 댓글 아이디 생성
         const newComment = {
             ...newCommentData,
-            commentId: commentId,
+            commentId: v4(),
         }
 
         allComments[postId].push(newComment);
 
-        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2));
+        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
         
     }catch(error){
         throw error;
     }
+};
+
+export const editComment = async (postId, commentId, editedCommentData) => {
+
+  try{
+    const allComments = await getAllComments();
+    const postComments = allComments[postId];
+    const commentIndex = postComments.findIndex(
+        (comment) => comment.commentId === commentId
+    );
+
+    allComments[postId][commentIndex] = {
+        ...postComments[commentIndex],
+        ...editedCommentData
+    };
+
+    await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
+
+  }catch(error){
+        throw error;
+    }
+  
 };

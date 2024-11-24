@@ -1,46 +1,54 @@
 {
   "1": [
     {
-      "commentId": 1,
-      "userId": 1,
+      "commentId": "1",
+      "userId": "1",
       "nickname": "홍길동",
       "profileImage": "/images/special.jpeg",
       "content": "이 게시물 정말 유용하네요!",
       "createdAt": "2024-11-16 08:30:00"
     },
     {
-      "commentId": 2,
-      "userId": 2,
-      "nickname": "빤쮸토끼",
-      "profileImage": "/images/panchu.jpeg",
-      "content": "안녕하세요?!?!?!?",
-      "createdAt": "2024-11-16 08:30:00"
+      "commentId": "2",
+      "userId": "300",
+      "nickname": "테스트수정닉네임",
+      "profileImage": "editedProfile.img",
+      "content": "댓글 수정했어요!",
+      "createdAt": "2024-11-24 13:14:23"
     },
     {
-      "commentId": 3,
-      "userId": 3,
+      "commentId": "3",
+      "userId": "3",
       "nickname": "우사기",
       "profileImage": "/images/bunny.jpg",
       "content": "반가워요!! 잘부탁드립니다.",
       "createdAt": "2024-11-16 08:30:00"
+    },
+    {
+      "commentId": "ad8a4fcf-b210-4d5c-ad68-bd76ea9f7177",
+      "userId": "1",
+      "nickname": "테스트닉네임",
+      "profileImage": "",
+      "content": "This is new comment",
+      "createdAt": "2024-11-24 12:41:21"
     }
   ],
   "2": [
     {
-      "commentId": 4,
-      "userId": 1,
+      "commentId": "4",
+      "userId": "1",
       "nickname": "홍길동",
       "profileImage": "/images/special.jpeg",
       "content": "맞아요<br>공감합니다.",
       "createdAt": "2024-11-16 08:30:00"
     },
     {
-      "commentId": 5,
-      "userId": 2,
+      "commentId": "5",
+      "userId": "2",
       "nickname": "빤쮸토끼",
       "profileImage": "/images/panchu.jpeg",
       "content": "긴 댓글을 써보려고 합니다. 테스트 테스트 댓글 댓글 우와아아아아아앙아아아아아앙아아아아아앙아아아앙아아앙아아아아",
       "createdAt": "2024-11-16 08:30:00"
-    }    
+    }
   ]
 }

@@ -1,6 +1,6 @@
 import { 
     createPost, getAllPosts, getPostById, editPost, deletePost,
-    getCommentsByPostId, createComment,
+    getCommentsByPostId, createComment, editComment,
 
 } from "../models/postModel.js";
 
@@ -143,10 +143,10 @@ export const createCommentController = async(req, res) => {
         const postId = req.params.postId;
         const {content} = req.body;
         const newCommentData = {
-            commentId: null,
-            userId: 1, //TODO:
+            //commentId: null,
+            userId: "1", //TODO:
             nickname: "테스트닉네임", //TODO:
-            profileImage: null, //TODO: 
+            profileImage: "", //TODO: 
             content: content,
             createdAt: getCurrentDate()
         };
@@ -159,11 +159,21 @@ export const createCommentController = async(req, res) => {
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
     }
-
 };
 
 export const editCommentController = async(req, res) => {
     try{
+        const {postId, commentId} = req.params;
+        const {content} = req.body;
+        const editedCommentData = {
+            nickname: "테스트수정닉네임", //TODO:
+            profileImage: "editedProfile.img", //TODO: 
+            content: content,
+            createdAt: getCurrentDate()
+        };
+
+        await editComment(postId, commentId, editedCommentData);
+        res.status(200).json({ message: "댓글 수정 성공" });
 
     }catch(error){
         console.log(error);
