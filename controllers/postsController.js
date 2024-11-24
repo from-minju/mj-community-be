@@ -31,7 +31,7 @@ export const getPostsController =async(req, res) => {
 
 // GET 게시물 상세
 export const getPostController = async(req, res) => {
-    const postId = parseInt(req.params.postId);
+    const postId = req.params.postId;
 
     try{
         const postData = await getPostById(postId);
@@ -79,7 +79,7 @@ export const createPostController = async(req, res) => {
 
 // TODO: 게시글 수정
 export const editPostController = async(req, res) => {
-    const postId = parseInt(req.params.postId);
+    const postId = req.params.postId;
     const {title, content, postImage} = req.body;
     
     try{
@@ -105,7 +105,7 @@ export const editPostController = async(req, res) => {
 
 
 export const deletePostController = async(req, res) => {
-    const postId = parseInt(req.params.postId);
+    const postId = req.params.postId;
 
     try{
         await deletePost(postId);
@@ -140,6 +140,20 @@ export const getCommentsController = async(req, res) => {
 
 export const createCommentController = async(req, res) => {
     try{
+        const postId = req.params.postId;
+        const {content} = req.body;
+        const newCommentData = {
+            commentId: null,
+            userId: 1, //TODO:
+            nickname: "테스트닉네임", //TODO:
+            profileImage: null, //TODO: 
+            content: content,
+            createdAt: getCurrentDate()
+        };
+
+        await createComment(postId, newCommentData);
+
+        res.status(201).json({message: "댓글 작성 성공"});
 
     }catch(error){
         console.log(error);

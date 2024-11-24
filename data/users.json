@@ -1,16 +1,16 @@
 [
   {
-    "userId": 1,
+    "userId": "1",
     "email": "snowball@mail.com",
     "password": "Abc123456!",
     "nickname": "스노우볼",
     "profileImage": "/uploads/bunny.jpg"
   },
   {
-    "userId": 2,
+    "userId": "2",
     "email": "test@mail.com",
-    "password": "A1234567!",
-    "nickname": "닉네임",
-    "profileImage": "https://image.kr/img.jpg"
+    "password": "Ab12345678!",
+    "nickname": "감자",
+    "profileImage": "https://image2.kr/img.jpg"
   }
 ]

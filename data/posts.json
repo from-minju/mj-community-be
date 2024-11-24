@@ -1,6 +1,6 @@
 [
   {
-    "postId": 1,
+    "postId": "1",
     "title": "안녕하세요?",
     "content": "그러게!!!!!!!!!!!!!!!!!!!!!!!!!!",
     "contentImage": "/images/impsb.JPG",
@@ -8,12 +8,12 @@
     "likes": 123450,
     "comments": 4500,
     "views": 50000,
-    "userId": 1,
+    "userId": "1",
     "nickname": "사람",
     "profileImage": "/images/special.jpeg"
   },
   {
-    "postId": 2,
+    "postId": "2",
     "title": "추워어어어어어어",
     "content": "발이 시려워...ㅠㅠㅠㅠㅠㅠ</br>날씨가 너무 추워졌어ㅠㅠㅠㅠㅜㅜㅜㅜㅠㅠㅜㅠㅜㅠㅜㅠ",
     "contentImage": "",
@@ -21,12 +21,12 @@
     "likes": 30,
     "comments": 5000,
     "views": 10000,
-    "userId": 2,
+    "userId": "2",
     "nickname": "수족냉증",
     "profileImage": "/images/pubao.JPG"
   },
   {
-    "postId": 3,
+    "postId": "3",
     "title": "짜장면 습격",
     "content": "습!!!!격!!!!!",
     "postImage": "/images/kogi.JPG",
@@ -34,12 +34,12 @@
     "likes": 123,
     "comments": 456,
     "views": 500,
-    "userId": 3,
+    "userId": "3",
     "nickname": "웰시코기",
     "profileImage": "/images/hamtori.JPG"
   },
   {
-    "postId": 4,
+    "postId": "4",
     "title": "햄토리보고가세요",
     "content": "",
     "postImage": "/images/hamtori.JPG",
@@ -47,12 +47,12 @@
     "likes": 6000,
     "comments": 700,
     "views": 1000,
-    "userId": 4,
+    "userId": "4",
     "nickname": "누구게",
     "profileImage": "/images/bunny.jpg"
   },
   {
-    "postId": 5,
+    "postId": "5",
     "title": "제목입니다1",
     "content": "본문입니다아아아아아아아아아아아ㅏㅏㅏㅏㅏㅏ아아아아ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ",
     "postImage": "",
@@ -60,12 +60,12 @@
     "likes": 123,
     "comments": 456,
     "views": 500,
-    "userId": 3,
+    "userId": "3",
     "nickname": "웰시코기",
     "profileImage": "/images/bunny.jpg"
   },
   {
-    "postId": 6,
+    "postId": "6",
     "title": "제목입니다1",
     "content": "본문입니다아아아아아아아아아아아ㅏㅏㅏㅏㅏㅏ아아아아ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ",
     "postImage": "",
@@ -73,8 +73,21 @@
     "likes": 123,
     "comments": 456,
     "views": 500,
-    "userId": 4,
+    "userId": "4",
     "nickname": "냐냐냐냥",
     "profileImage": "/images/bunny.jpg"
+  },
+  {
+    "postId": "0289cf61-e245-4b90-8d67-173172d58db3",
+    "title": "수정한 제목",
+    "content": "This is edited content",
+    "postImage": "https://image2.kr/img.jpg",
+    "createdAt": "2024-11-24 11:55:52",
+    "likes": 0,
+    "comments": 0,
+    "views": 0,
+    "userId": "1",
+    "nickname": "테스트닉네임",
+    "profileImage": null
   }
 ]

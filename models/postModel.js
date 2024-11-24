@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { v4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,7 +47,7 @@ export const getPostById = async(postId) => {
 export const createPost = async(newPost) => {
     try{
         const posts = await getAllPosts();
-        const postId = posts.length > 0 ? posts[posts.length - 1].postId + 1 : 1
+        const postId = v4();
 
         newPost.postId = postId;
         posts.push(newPost);
@@ -123,5 +124,24 @@ export const getCommentsByPostId = async(postId) => {
 };
 
 export const createComment = async(postId, newCommentData) => {
+    try{
+        /**
+         * 1. 전체 댓글 조회
+         * 2. 게시물에 대한 모든 댓글 조회
+         * 3. 
+         */
+        const allComments = await getAllComments();
+        const commentId = 0; //TODO: 댓글 아이디 생성
+        const newComment = {
+            ...newCommentData,
+            commentId: commentId,
+        }
 
+        allComments[postId].push(newComment);
+
+        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2));
+        
+    }catch(error){
+        throw error;
+    }
 };
