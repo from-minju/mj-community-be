@@ -23,14 +23,6 @@
       "profileImage": "/images/bunny.jpg",
       "content": "반가워요!! 잘부탁드립니다.",
       "createdAt": "2024-11-16 08:30:00"
-    },
-    {
-      "commentId": "ad8a4fcf-b210-4d5c-ad68-bd76ea9f7177",
-      "userId": "1",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
-      "content": "This is new comment",
-      "createdAt": "2024-11-24 12:41:21"
     }
   ],
   "2": [

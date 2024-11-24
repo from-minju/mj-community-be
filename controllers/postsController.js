@@ -1,6 +1,7 @@
 import { 
     createPost, getAllPosts, getPostById, editPost, deletePost,
     getCommentsByPostId, createComment, editComment,
+    deleteComment,
 
 } from "../models/postModel.js";
 
@@ -179,15 +180,18 @@ export const editCommentController = async(req, res) => {
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
     }
-
 };
 
 export const deleteCommentController = async(req, res) => {
     try{
+        const {postId, commentId} = req.params;
+
+        await deleteComment(postId, commentId);
+
+        res.status(200).json({ message: "댓글 삭제 성공" });
 
     }catch(error){
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
     }
-
 };

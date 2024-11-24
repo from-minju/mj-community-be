@@ -139,24 +139,41 @@ export const createComment = async(postId, newCommentData) => {
     }
 };
 
+
 export const editComment = async (postId, commentId, editedCommentData) => {
+    try{
+        const allComments = await getAllComments();
+        const postComments = allComments[postId];
+        const commentIndex = postComments.findIndex(
+            (comment) => comment.commentId === commentId
+        );
 
-  try{
-    const allComments = await getAllComments();
-    const postComments = allComments[postId];
-    const commentIndex = postComments.findIndex(
-        (comment) => comment.commentId === commentId
-    );
+        allComments[postId][commentIndex] = {
+            ...postComments[commentIndex],
+            ...editedCommentData
+        };
 
-    allComments[postId][commentIndex] = {
-        ...postComments[commentIndex],
-        ...editedCommentData
-    };
-
-    await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
-
-  }catch(error){
+        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
+        
+    } catch(error){
         throw error;
     }
-  
+};
+
+
+export const deleteComment = async(postId, commentId) => {
+    try{
+        const allComments = await getAllComments();
+        const postComments = allComments[postId];
+        const commentIndex = postComments.findIndex(
+            (comment) => comment.commentId === commentId
+        );
+
+        allComments[postId].splice(commentIndex, 1);
+
+        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
+
+    } catch(error){
+        throw error;
+    }
 };
