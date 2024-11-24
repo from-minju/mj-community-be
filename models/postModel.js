@@ -53,7 +53,7 @@ export const createPost = async(newPost) => {
 
         await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
 
-        return postId;
+        return newPost.postId;
 
     }catch(error){
         throw error;
@@ -114,7 +114,7 @@ const getAllComments = async() => {
 export const getCommentsByPostId = async(postId) => {
     try{
         const allComments = await getAllComments();
-        const postComments = allComments[postId];
+        const postComments = allComments[postId] || null;
 
         return postComments;
     }catch(error){
