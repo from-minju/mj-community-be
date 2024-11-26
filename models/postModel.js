@@ -130,6 +130,10 @@ export const createComment = async(postId, newCommentData) => {
             commentId: v4(),
         }
 
+        if(!allComments[postId]){
+            allComments[postId] = [];
+        }
+
         allComments[postId].push(newComment);
 
         await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');

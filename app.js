@@ -12,7 +12,10 @@ import usersRouter from './routes/usersRoutes.js';
 
 app.use(
     express.json(),
-    cors({origin: "http://localhost:8000"})
+    cors({origin: "http://localhost:8000",
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: 'Content-Type, Authorization'
+    })
  );
 
 app.use('/auth', authRouter);

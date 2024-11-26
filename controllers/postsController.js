@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { 
     createPost, getAllPosts, getPostById, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,
@@ -92,7 +93,7 @@ export const editPostController = async(req, res) => {
         await editPost(postId, editedPostData);
         res.status(200).json({
             message: "게시물 수정 성공",
-            data: {postId: postId}
+            // data: {postId: postId}
         });
 
     } catch(error){
@@ -143,8 +144,8 @@ export const createCommentController = async(req, res) => {
         const postId = req.params.postId;
         const {content} = req.body;
         const newCommentData = {
-            //commentId: null,
-            userId: "1", //TODO:
+            commentId: v4(),
+            userId: "1234", //TODO:
             nickname: "테스트닉네임", //TODO:
             profileImage: "", //TODO: 
             content: content,
