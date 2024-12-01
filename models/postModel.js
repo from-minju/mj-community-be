@@ -48,7 +48,6 @@ export const createPost = async(newPost) => {
     try{
         const posts = await getAllPosts();
 
-        newPost.postId = v4();
         posts.push(newPost);
 
         await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');

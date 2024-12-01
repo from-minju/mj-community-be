@@ -16,6 +16,19 @@ const getAllUsers = async() => {
     }
 };
 
+export const createUser = async (newUser) => {
+    try{
+        const users = await getAllUsers();
+
+        users.push(newUser);
+        
+        await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
+
+    }catch(error){
+        throw error;
+    }
+};
+
 
 export const getUserById = async (userId) => {
     try{
@@ -26,6 +39,19 @@ export const getUserById = async (userId) => {
         
         return user;
 
+    } catch(error){
+        throw error;
+    }
+};
+
+export const getUserByEmail = async (email) => {
+    try{
+        const users = await getAllUsers();
+        const user = users.find((user) => user.email === email);
+
+        if(!user) throw new Error('해당 email의 사용자가 존재하지 않습니다.');
+
+        return user;
     } catch(error){
         throw error;
     }

@@ -20,7 +20,7 @@ function getCurrentDate() {
 export const getPostsController =async(req, res) => {
     try{
         const postsData = await getAllPosts();
-        res.json({
+        res.status(200).json({
             message: "게시물 목록 조회 성공",
             data: postsData
         });
@@ -33,7 +33,7 @@ export const getPostsController =async(req, res) => {
 // GET 게시물 상세
 export const getPostController = async(req, res) => {
     const postId = req.params.postId;
-
+    
     try{
         const postData = await getPostById(postId);
         res.status(200).json({
@@ -52,17 +52,17 @@ export const createPostController = async(req, res) => {
     const { title, content, postImage } = req.body; 
 
     const newPost = {
-        "postId": "",
-        "title": title,
-        "content": content,
-        "postImage": postImage,
-        "createdAt": getCurrentDate(), 
-        "likes": 0,
-        "comments": 0,
-        "views": 0,
-        "userId": null,
-        "nickname": "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
-        "profileImage": null // TODO:
+        postId: v4(),
+        title: title,
+        content: content,
+        postImage: postImage,
+        createdAt: getCurrentDate(), 
+        likes: 0,
+        comments: 0,
+        views: 0,
+        userId: null,
+        nickname: "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
+        profileImage: null // TODO:
     }
     
     try{
@@ -133,6 +133,8 @@ export const getCommentsController = async(req, res) => {
             message: "댓글 목록 조회 성공",
             data: comments
         });
+
+        console.log("getComments 성공! 응답을 보냈습니다.");
     }catch(error){
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
@@ -167,10 +169,10 @@ export const editCommentController = async(req, res) => {
         const {postId, commentId} = req.params;
         const {content} = req.body;
         const editedCommentData = {
-            nickname: "테스트수정닉네임", //TODO:
-            profileImage: "editedProfile.img", //TODO: 
+            // nickname: "테스트수정닉네임", //TODO:
+            // profileImage: "editedProfile.img", //TODO: 
             content: content,
-            createdAt: getCurrentDate()
+            // createdAt: getCurrentDate()
         };
 
         await editComment(postId, commentId, editedCommentData);
