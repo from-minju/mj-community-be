@@ -61,11 +61,12 @@ export const checkEmailController = async(req, res) => {
         const users = await getAllUsers();
         const isDuplicate = users.some(user => user.email === email); // some() 배열 순회하며 조건에 맞는 요소가 하나라도 있으면 true 반환
 
-        if(!isDuplicate){
-            res.status(200).end(); //중복X
+        if(isDuplicate){
+            res.status(200).json({ message: "이미 존재하는 이메일입니다.", isDuplicate: isDuplicate });
         }else{
-            res.status(400).end(); //중복O
+            res.status(200).json({ message: "사용가능한 이메일입니다.", isDuplicate: isDuplicate });
         }
+        
 
     }catch(error){
         console.log(error);
@@ -80,10 +81,10 @@ export const checkNicknameController = async(req, res) => {
         const users = await getAllUsers();
         const isDuplicate = users.some(user => user.nickname === nickname);
 
-        if(!isDuplicate){
-            res.status(200).end(); //중복X
+        if(isDuplicate){
+            res.status(200).json({ message: "이미 존재하는 닉네임입니다.", isDuplicate: isDuplicate });
         }else{
-            res.status(400).end(); //중복O
+            res.status(200).json({ message: "사용가능한 닉네임입니다.", isDuplicate: isDuplicate });
         }
 
     }catch(error){

@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/:userId/profile', getUserProfileController);
 router.put('/:userId/profile', editProfileController);
 router.patch('/:userId/profile/password', changePasswordController);
-router.get('/check-email', checkEmailController);
-router.get('/check-nickname', checkNicknameController);
+router.post('/check-email', checkEmailController);
+router.post('/check-nickname', checkNicknameController);
 
 export default router;
