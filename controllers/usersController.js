@@ -1,4 +1,4 @@
-import { editProfile, getUserById, changePassword } from "../models/userModel.js";
+import { editProfile, getUserById, changePassword, getAllUsers } from "../models/userModel.js";
 
 export const getUserProfileController = async (req, res) => {
     try{
@@ -52,3 +52,42 @@ export const changePasswordController = async(req, res) => {
         res.status(500).json({message: "서버 에러 발생"});
     }
 };
+
+
+export const checkEmailController = async(req, res) => {
+    const {email} = req.body;
+
+    try{
+        const users = await getAllUsers();
+        const isDuplicate = users.some(user => user.email === email); // some() 배열 순회하며 조건에 맞는 요소가 하나라도 있으면 true 반환
+
+        if(!isDuplicate){
+            res.status(200).end(); //중복X
+        }else{
+            res.status(400).end(); //중복O
+        }
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+}
+
+export const checkNicknameController = async(req, res) => {
+    const {nickname} = req.body;
+
+    try{
+        const users = await getAllUsers();
+        const isDuplicate = users.some(user => user.nickname === nickname);
+
+        if(!isDuplicate){
+            res.status(200).end(); //중복X
+        }else{
+            res.status(400).end(); //중복O
+        }
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+}

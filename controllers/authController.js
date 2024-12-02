@@ -39,7 +39,6 @@ export const loginController = async(req, res) => {
     }
 
     try{
-        console.log(email);
         const user = await getUserByEmail(email);
 
         if(!user){

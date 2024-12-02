@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const usersFilePath = path.join(__dirname, '../data/users.json');
 
-const getAllUsers = async() => {
+export const getAllUsers = async() => {
     try{
         const data = await fs.readFile(usersFilePath, 'utf-8');
         return JSON.parse(data);
