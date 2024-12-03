@@ -1,3 +1,5 @@
+import multer from "multer";
+import path from "path";
 import { editProfile, getUserById, changePassword, getAllUsers } from "../models/userModel.js";
 
 export const getUserProfileController = async (req, res) => {
@@ -17,7 +19,6 @@ export const getUserProfileController = async (req, res) => {
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});
     }
-    
 };
 
 
@@ -92,3 +93,9 @@ export const checkNicknameController = async(req, res) => {
         res.status(500).json({message: "서버 에러 발생"});
     }
 }
+
+export const uploadProfileImageController = (req, res) => {
+    upload.single('profile')
+
+}
+

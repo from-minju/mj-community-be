@@ -134,7 +134,6 @@ export const getCommentsController = async(req, res) => {
             data: comments
         });
 
-        console.log("getComments 성공! 응답을 보냈습니다.");
     }catch(error){
         console.log(error);
         res.status(500).json({message: "서버 에러 발생"});

@@ -12,6 +12,7 @@ import postsRouter from './routes/postsRoutes.js';
 import usersRouter from './routes/usersRoutes.js';
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
     cors({origin: "http://localhost:8000",
@@ -23,7 +24,7 @@ app.use(
 
 app.use(
     session({
-        secret: 'mySecretKey',
+        secret: 'mySecretKey', //true
         resave: false,
         saveUninitialized: true,
         cookie: {
@@ -33,6 +34,8 @@ app.use(
 
     })
 );
+
+app.use('/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
 
 app.use('/auth', authRouter);
 app.use('/posts', postsRouter);

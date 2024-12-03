@@ -1,32 +1,47 @@
-import {createUser, getUserByEmail} from "../models/userModel.js";
-import { v4 } from "uuid";
 import bcrypt from 'bcrypt';
+import { v4 } from "uuid";
+import {createUser, getUserByEmail} from "../models/userModel.js";
+import { upload } from "../middleware/multer.js";
 const saltRounds = 10;
 
+export const statusController = (req, res) => {
+    if(!req.session.userId){
+        return res.status(401).json({message: "로그인이 필요합니다."});
+    }
+
+    res.status(200).json({message: "로그인되어있습니다."})
+}
+
 export const signupController = async(req, res) => {
-    const {email, password, nickname, profileImage} = req.body;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    upload.single('profileImage')(req, res, async (err) => {
+        if(err){
+            console.error("Multer error: ", err);
+            return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
+        }
 
-    //TODO: 유효성 검사
-    //TODO: 이메일 중복 검사 
+        const { email, password, nickname } = req.body;
+        const profileImage = req.file ? req.file.path : null; // 업로드된 파일 경로
+        const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
 
-    const newUser = {
-        userId: v4(),
-        email: email,
-        password: hashedPassword,
-        nickname: nickname,
-        profileImage: profileImage //TODO: 프로필 이미지 저장하기
-    }
+        // TODO: 유효성 검사 추가
+        // TODO: 이메일 중복 검사
 
-    try{
-        await createUser(newUser);
-        res.status(201).json({
-            message: "회원가입 성공"
-        });
-    }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
-    }
+        const newUser = {
+            userId: v4(),
+            email: email.trim(),
+            password: hashedPassword,
+            nickname: nickname.trim(),
+            profileImage: profileImage, // 저장된 이미지 경로
+        };
+
+        try {
+            await createUser(newUser); // 데이터베이스에 사용자 추가
+            res.status(201).json({ message: '회원가입 성공' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: '서버 에러 발생'});
+        }
+    })
 }
 
 export const loginController = async(req, res) => {
@@ -53,7 +68,7 @@ export const loginController = async(req, res) => {
         }
 
         //로그인 성공 
-        req.session.userId = user.userId; // 세션 객체에 사용자 id 저장
+        req.session.userId = user.userId; // 세션에 사용자 id 저장
         res.status(200).json({ message: "로그인 성공" });
 
     }catch(error){
