@@ -20,7 +20,7 @@ export const signupController = async(req, res) => {
         }
 
         const { email, password, nickname } = req.body;
-        const profileImage = req.file ? req.file.path : null; // 업로드된 파일 경로
+        const profileImage = req.file ? `/uploads/${req.file.filename}` : `/uploads/default-user-profile.png`; // 업로드된 파일 경로
         const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
 
         // TODO: 유효성 검사 추가

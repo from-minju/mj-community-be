@@ -1,9 +1,8 @@
 import { v4 } from "uuid";
-import { 
-    createPost, getAllPosts, getPostById, editPost, deletePost,
-    getCommentsByPostId, createComment, editComment, deleteComment,
+import { createPost, getAllPosts, getPostById, editPost, deletePost,
+    getCommentsByPostId, createComment, editComment, deleteComment,} from "../models/postModel.js";
+import { upload } from "../middleware/multer.js";
 
-} from "../models/postModel.js";
 
 function getCurrentDate() {
     let today = new Date();
@@ -49,33 +48,41 @@ export const getPostController = async(req, res) => {
 
 // POST 게시물 작성
 export const createPostController = async(req, res) => {
-    const { title, content, postImage } = req.body; 
+    upload.single('postImage')(req, res, async (err) => {
+        if(err){
+            console.error("Multer error: ", err);
+            return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
+        }
 
-    const newPost = {
-        postId: v4(),
-        title: title,
-        content: content,
-        postImage: postImage,
-        createdAt: getCurrentDate(), 
-        likes: 0,
-        comments: 0,
-        views: 0,
-        userId: null,
-        nickname: "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
-        profileImage: null // TODO:
-    }
+        const {title, content} = req.body;
+        const postImage = req.file ? `/uploads/${req.file.filename}` : null; // 업로드된 파일 경로
+
+        const newPost = {
+            postId: v4(),
+            title: title,
+            content: content,
+            postImage: postImage,
+            createdAt: getCurrentDate(), 
+            likes: 0,
+            comments: 0,
+            views: 0,
+            userId: null, //TODO: 
+            nickname: "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
+            profileImage: '/uploads/default-user-profile.png' // TODO:
+        };
+
+        try{
+            const postId = await createPost(newPost);
+            res.status(201).json({
+                message: "게시물 작성 성공", 
+                data: {postId: postId}});
     
-    try{
-        const postId = await createPost(newPost);
-        res.status(201).json({
-            message: "게시물 작성 성공", 
-            data: {postId: postId}});
-
-    } catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
-    }
-
+        } catch(error){
+            console.log(error);
+            res.status(500).json({message: "서버 에러 발생"});
+        }
+        
+    });
 };
 
 // TODO: 게시글 수정
