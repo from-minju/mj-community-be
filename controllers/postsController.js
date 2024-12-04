@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { createPost, getAllPosts, getPostById, editPost, deletePost,
-    getCommentsByPostId, createComment, editComment, deleteComment,} from "../models/postModel.js";
+    getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 
 
@@ -55,7 +55,7 @@ export const createPostController = async(req, res) => {
         }
 
         const {title, content} = req.body;
-        const postImage = req.file ? `/uploads/${req.file.filename}` : null; // 업로드된 파일 경로
+        const postImage = req.file ? `${req.file.filename}` : null; // 업로드된 파일 경로
 
         const newPost = {
             postId: v4(),
@@ -68,7 +68,7 @@ export const createPostController = async(req, res) => {
             views: 0,
             userId: null, //TODO: 
             nickname: "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
-            profileImage: '/uploads/default-user-profile.png' // TODO:
+            profileImage: 'default-user-profile.png' // TODO:
         };
 
         try{
@@ -116,7 +116,9 @@ export const deletePostController = async(req, res) => {
     const postId = req.params.postId;
 
     try{
+        //uploads의 이미지 삭제하기
         await deletePost(postId);
+        await deleteCommentsByPostId(postId);
         res.status(200).json({message: "게시물 삭제 성공"});
 
     }catch(error){
