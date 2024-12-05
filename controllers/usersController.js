@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { editProfile, getUserById, changePassword, getAllUsers } from "../models/userModel.js";
+import { defaultProfileImage } from "../config.js";
 
 export const getUserProfileController = async (req, res) => {
     try{
@@ -12,7 +13,7 @@ export const getUserProfileController = async (req, res) => {
             data: {
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage
+                profileImage: user.profileImage || defaultProfileImage
             }
         });
     }catch(error){

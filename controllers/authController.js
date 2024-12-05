@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { v4 } from "uuid";
 import {createUser, getUserByEmail, getUserById} from "../models/userModel.js";
 import { upload } from "../middleware/multer.js";
+import { defaultProfileImage } from '../config.js';
 const saltRounds = 10;
 
 
@@ -22,13 +23,23 @@ export const checkAuthenticationController = async(req, res) => {
                 userId: user.userId,
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage
+                profileImage: user.profileImage || defaultProfileImage
             }
         });
     }catch(error){
         console.error(error);
         return res.status(500).json({message: "서버 에러 발생"});
     }
+}
+
+export const logoutController = async(req, res) => {
+    req.session.destroy((error) => {
+        if(error){
+            return res.status(500).json({ message: '서버 에러 발생' });
+        }
+        res.clearCookie('connect.sid'); // 세션 쿠키 제거
+        res.status(200).json({ message: '로그아웃 성공' });
+    })
 }
 
 
@@ -51,7 +62,7 @@ export const signupController = async(req, res) => {
             email: email.trim(),
             password: hashedPassword,
             nickname: nickname.trim(),
-            profileImage: profileImage, // 저장된 이미지 경로
+            profileImage: profileImage || defaultProfileImage, // 저장된 이미지 경로
         };
 
         try {
