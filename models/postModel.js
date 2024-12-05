@@ -2,7 +2,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 } from 'uuid';
-import { deleteImage } from '../utils/fileUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,10 +86,6 @@ export const deletePost = async (postId) => {
     try{
         const posts = await getAllPosts();
         const postIndex = posts.findIndex((post) => post.postId === postId);
-
-        const postImageName = posts[postIndex].postImage;
-        const filePath = path.join(process.cwd(), 'uploads', postImageName);
-        deleteImage(filePath);
     
         if (postIndex === -1) {
             throw new Error('게시물을 찾을 수 없습니다.');
@@ -106,6 +101,21 @@ export const deletePost = async (postId) => {
 };
 
 
+export const getImageNameByPostId = async(postId) => {
+    try{
+        const postsData = await getAllPosts();
+        const postData = postsData.find((post) => post.postId === postId);
+
+        if(!postData){
+            return false;
+        }
+
+        return postData.postImage;
+
+    }catch(error){
+        throw error;
+    }
+}
 
 
 /**
@@ -200,6 +210,7 @@ export const deleteCommentsByPostId = async(postId) => {
         throw error;
     }
 }
+
 
 
 /**

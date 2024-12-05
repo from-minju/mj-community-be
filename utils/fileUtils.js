@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 
 export const deleteImage = (filePath) => {
     fs.unlink(filePath, (err) => {
@@ -9,3 +10,7 @@ export const deleteImage = (filePath) => {
         }
     });
 };
+
+// export const getFullImagePath = (imageName) => {
+//     return path.join(process.cwd(), uploads, imageName);
+// };

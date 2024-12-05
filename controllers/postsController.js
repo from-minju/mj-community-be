@@ -1,7 +1,10 @@
 import { v4 } from "uuid";
+import path from 'path';
 import { createPost, getAllPosts, getPostById, editPost, deletePost,
-    getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,} from "../models/postModel.js";
+    getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
+    getImageNameByPostId,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
+import { deleteImage } from "../utils/fileUtils.js";
 
 
 function getCurrentDate() {
@@ -85,30 +88,46 @@ export const createPostController = async(req, res) => {
     });
 };
 
-// TODO: 게시글 수정
+
 export const editPostController = async(req, res) => {
-    const postId = req.params.postId;
-    const {title, content, postImage} = req.body;
-    
-    try{
+    upload.single('postImage')(req, res, async(err) => {
+        if(err){
+            console.error("Multer error: ", err);
+            return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
+        }
+
+        const postId = req.params.postId;
+        const {title, content} = req.body;
+        const postImage = req.file ? `${req.file.filename}` : null;
+
         const editedPostData = {
             title: title,
             content: content,
-            postImage: postImage || null,
         }
 
-        await editPost(postId, editedPostData);
-        res.status(200).json({
-            message: "게시물 수정 성공",
-            // data: {postId: postId}
-        });
+        if(req.file){
+            editedPostData.postImage = postImage;
 
-    } catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
-    }
+            //uploads의 기존 이미지 삭제하기
+            const previousImageName = await getImageNameByPostId(postId);
+            if(previousImageName){
+                const filePath = path.join(process.cwd(), 'uploads', previousImageName);
+                deleteImage(filePath);
+            }
+        }
+
+        try{
+            await editPost(postId, editedPostData);
+            res.status(200).json({
+                message: "게시물 수정 성공",
+            });
+        }catch(error){
+            console.log(error);
+            res.status(500).json({message: "서버 에러 발생"});
+        }
+    });
     //TODO: 사용자 Id로 프로필사진, 닉네임 가져오기/ posts.json에도 사용자id만 넣어두기.
-
+    //TODO: 이미지 파일이 바뀌면, 기존의 이미지 파일은 삭제하기. 
 }
 
 
@@ -117,6 +136,10 @@ export const deletePostController = async(req, res) => {
 
     try{
         //uploads의 이미지 삭제하기
+        const previousImageName = await getImageNameByPostId(postId);
+        const filePath = path.join(process.cwd(), 'uploads', previousImageName);
+        deleteImage(filePath);
+
         await deletePost(postId);
         await deleteCommentsByPostId(postId);
         res.status(200).json({message: "게시물 삭제 성공"});
