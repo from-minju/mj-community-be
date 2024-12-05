@@ -1,16 +1,36 @@
 import bcrypt from 'bcrypt';
 import { v4 } from "uuid";
-import {createUser, getUserByEmail} from "../models/userModel.js";
+import {createUser, getUserByEmail, getUserById} from "../models/userModel.js";
 import { upload } from "../middleware/multer.js";
 const saltRounds = 10;
 
-export const statusController = (req, res) => {
+
+export const checkAuthenticationController = async(req, res) => {
     if(!req.session.userId){
         return res.status(401).json({message: "로그인이 필요합니다."});
     }
 
-    res.status(200).json({message: "로그인되어있습니다."})
+    try{
+        const user = await getUserById(req.session.userId);
+        if(!user){
+            return res.status(404).json({message: "존재하지 않는 사용자입니다."});
+        }
+
+        res.status(200).json({
+            message: "사용자 조회 성공",
+            data: {
+                userId: user.userId,
+                email: user.email,
+                nickname: user.nickname,
+                profileImage: user.profileImage
+            }
+        });
+    }catch(error){
+        console.error(error);
+        return res.status(500).json({message: "서버 에러 발생"});
+    }
 }
+
 
 export const signupController = async(req, res) => {
     upload.single('profileImage')(req, res, async (err) => {
@@ -55,16 +75,15 @@ export const loginController = async(req, res) => {
 
     try{
         const user = await getUserByEmail(email);
-
+        // 로그인 실패. 이메일 다름.
         if(!user){
             return res.status(401).json({message: "이메일 또는 비밀번호가 잘못되었습니다."});
         }
 
+        // 로그인 실패. 비밀번호가 다름.
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if(!isPasswordCorrect){
-            //로그인 실패, 비밀번호가 다름.
-            res.status(401).json({message: "이메일 또는 비밀번호가 잘못되었습니다."});
-            return;
+            return res.status(401).json({message: "이메일 또는 비밀번호가 잘못되었습니다."});
         }
 
         //로그인 성공 

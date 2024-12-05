@@ -34,6 +34,7 @@ export const getPostsController =async(req, res) => {
 
 // GET 게시물 상세
 export const getPostController = async(req, res) => {
+
     const postId = req.params.postId;
     
     try{

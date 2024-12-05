@@ -25,8 +25,8 @@ app.use(
 app.use(
     session({
         secret: 'mySecretKey', //true
-        resave: false,
-        saveUninitialized: true,
+        resave: false, // 세션이 수정되지 않아도 저장할지 여부
+        saveUninitialized: false, // 초기화되지 않은 세션도 저장할지 여부
         cookie: {
             secure: false, //https에서만 작동하도록 설정 (개발 환경에서는 false로 설정, 배포 환경에서는 true)
             maxAge: 1000 * 60 * 60 * 24, //쿠키유효기간설정 (1일)
@@ -45,10 +45,6 @@ app.use('/users', usersRouter);
 app.get('/', (req, res) => {
     res.send('Express 시작!');
 });
-
-app.get('/data', (req,res) => {
-    res.json("[server] 데이터 가져오기 성공!!!");
-})
 
 app.listen(port, ()=>{
     console.log(port, '번 포트에서 대기 중');
