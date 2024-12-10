@@ -1,16 +1,23 @@
 [
   {
-    "userId": "1",
-    "email": "snowball@mail.com",
-    "password": "Abc123456!",
-    "nickname": "스노우볼",
-    "profileImage": "/uploads/bunny.jpg"
+    "userId": "606ed766-67c1-431e-adff-88e881b32de4",
+    "email": "test1@gmail.com",
+    "password": "$2b$10$dVxm8iHlYoB2xgKINl90buHZZJr1zpLG4lPKpBLJ53jJ4eeTCn99e",
+    "nickname": "긴파치센세",
+    "profileImage": "1733812453410-131576373-gintoki.jpg"
   },
   {
-    "userId": "2",
-    "email": "test@mail.com",
-    "password": "Ab12345678!",
-    "nickname": "감자",
-    "profileImage": "https://image2.kr/img.jpg"
+    "userId": "f8d2f1dd-cb14-4e76-8d35-f9d1cf8762de",
+    "email": "test2@gmail.com",
+    "password": "$2b$10$apGjJ0tzm0arCYifvojFguU4BJLeGq658G/yNONJjxSvlALAnzqyq",
+    "nickname": "카구라",
+    "profileImage": "1733806320784-675526378-kagura.jpg"
+  },
+  {
+    "userId": "255a1f1f-4c61-42b8-9301-b16662ee7fa0",
+    "email": "snowball@gmail.com",
+    "password": "$2b$10$TIZX75CYagwTVHsqY6rvJeRoUqBLDeUQJ4XpD4YDCZ3ZOWeofsTKi",
+    "nickname": "Jenny",
+    "profileImage": "1733806647459-579194609-profile_bunny.jpg"
   }
 ]

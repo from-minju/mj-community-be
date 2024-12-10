@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { editProfile, getUserById, changePassword, getAllUsers, getProfileImageNameByUserId } from "../models/userModel.js";
-import { defaultProfileImageName } from "../config.js";
+import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
 
 export const getUserProfileController = async (req, res) => {
@@ -14,7 +14,7 @@ export const getUserProfileController = async (req, res) => {
             data: {
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage || defaultProfileImageName
+                profileImage: user.profileImage || DefaultProfileImageName
             }
         });
     }catch(error){
@@ -26,26 +26,30 @@ export const getUserProfileController = async (req, res) => {
 
 export const editProfileController = async(req, res) => {
     const userId = req.session.userId;
+    const { isProfileImageChanged } = req.body;
 
     if (!userId) {
         return res.status(401).json({ message: "로그인 필요" });
     }
 
     try{
-        const newProfileImageName = req.file ? req.file.filename : null;
+        const previousImageName = await getProfileImageNameByUserId(userId);
+        let profileImageName = previousImageName;
+
+        // 프로필 이미지에 변경이 있었다면,
+        if(isProfileImageChanged){
+            profileImageName = req.file ? req.file.filename : DefaultProfileImageName;
+
+            // 기존 프로필 이미지 삭제
+            if(previousImageName !== DefaultProfileImageName){
+                const filePath = path.join(process.cwd(), 'uploads', previousImageName);
+                deleteImage(filePath);
+            }
+        }
 
         const editedUserData = {
             nickname: req.body.nickname,
-            profileImage: newProfileImageName || "default-user-profile.png",
-        }
-        
-        // 기존 프로필 이미지 삭제
-        const previousImageName = await getProfileImageNameByUserId(userId);
-        if(previousImageName &&
-            previousImageName !== defaultProfileImageName
-        ){
-            const filePath = path.join(process.cwd(), 'uploads', previousImageName);
-            deleteImage(filePath);
+            profileImage: profileImageName
         }
 
         await editProfile(userId, editedUserData);

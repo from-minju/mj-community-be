@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { v4 } from "uuid";
 import {createUser, getUserByEmail, getUserById} from "../models/userModel.js";
 import { upload } from "../middleware/multer.js";
-import { defaultProfileImageName } from '../config.js';
+import { DefaultProfileImageName } from '../config.js';
 const saltRounds = 10;
 
 
@@ -23,7 +23,7 @@ export const checkAuthenticationController = async(req, res) => {
                 userId: user.userId,
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage || defaultProfileImageName
+                profileImage: user.profileImage || DefaultProfileImageName
             }
         });
     }catch(error){
@@ -46,7 +46,7 @@ export const logoutController = async(req, res) => {
 export const signupController = async(req, res) => {
 
     const { email, password, nickname } = req.body;
-    const profileImage = req.file ? `${req.file.filename}` : defaultProfileImageName; // 업로드된 파일 경로
+    const profileImage = req.file ? `${req.file.filename}` : DefaultProfileImageName; // 업로드된 파일 경로
     const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
 
     // TODO: 유효성 검사 추가
