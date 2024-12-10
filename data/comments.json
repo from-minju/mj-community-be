@@ -2,9 +2,7 @@
   "409d54bc-56e6-44aa-9eb0-901e67e3bf76": [
     {
       "commentId": "ad90f974-61cd-405b-a51a-4038ecc366ae",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "긴파치센세가 남긴 댓글입니다.",
       "createdAt": "2024-12-10 16:01:02"
     }
@@ -12,9 +10,7 @@
   "2e2e66f1-f02c-4818-b69e-83035889c94a": [
     {
       "commentId": "b560c000-dba9-4d94-b2c9-fb50c87f58ac",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "긴파치센세가 남긴 댓글입니다.",
       "createdAt": "2024-12-10 16:01:12"
     }
@@ -22,59 +18,45 @@
   "ee66584d-0539-476c-b03d-078209ed44e3": [
     {
       "commentId": "ed55f435-ca5c-4a63-a607-6844d5cb948c",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "긴파치 센세가 남긴 댓글1",
       "createdAt": "2024-12-10 17:26:59"
     },
     {
       "commentId": "1d9d6d3b-40c2-4399-8df0-96b0ba09bc85",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "긴파치 센세가 남긴 댓글2",
       "createdAt": "2024-12-10 17:27:03"
     },
     {
       "commentId": "52b6715f-2407-4940-95b1-c868fb6b8834",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "긴파치 센세가 남긴 댓글3",
       "createdAt": "2024-12-10 17:27:05"
     },
     {
       "commentId": "a068128b-d255-4b36-9664-e63d3acefc1b",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "긴파치 센세가 남긴 댓글4",
       "createdAt": "2024-12-10 17:27:09"
     },
     {
       "commentId": "5dcc5715-f700-4d7e-9220-4d8349a50107",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
-      "content": "긴파치 센세가 남긴 댓글5",
+      "commentAuthorId": "f8d2f1dd-cb14-4e76-8d35-f9d1cf8762de",
+      "content": "카구라가 남긴 댓글5",
       "createdAt": "2024-12-10 17:27:13"
     }
   ],
   "a447b9e5-f573-43da-b1d9-76cfd6be9b72": [
     {
       "commentId": "d4e4eef2-df18-45eb-b03a-a0772a5c58be",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "댓글1",
       "createdAt": "2024-12-10 17:32:55"
     },
     {
       "commentId": "c25b7002-0406-487b-8c63-a833a168834b",
-      "userId": "1234",
-      "nickname": "테스트닉네임",
-      "profileImage": "",
+      "commentAuthorId": "606ed766-67c1-431e-adff-88e881b32de4",
       "content": "댓글2",
       "createdAt": "2024-12-10 17:32:59"
     }
