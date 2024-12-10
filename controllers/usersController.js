@@ -37,7 +37,7 @@ export const editProfileController = async(req, res) => {
         let profileImageName = previousImageName;
 
         // 프로필 이미지에 변경이 있었다면,
-        if(isProfileImageChanged){
+        if(isProfileImageChanged === 'true'){
             profileImageName = req.file ? req.file.filename : DefaultProfileImageName;
 
             // 기존 프로필 이미지 삭제
