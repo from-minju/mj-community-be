@@ -21,8 +21,24 @@
     "likes": 0,
     "comments": 0,
     "views": 0,
-    "userId": null,
-    "nickname": "테스트닉네임",
-    "profileImage": "default-user-profile.png"
+    "postAuthorId": "255a1f1f-4c61-42b8-9301-b16662ee7fa0"
+  },
+  {
+    "postId": "ee66584d-0539-476c-b03d-078209ed44e3",
+    "title": "테스트",
+    "content": "테스트입니다.",
+    "postImage": null,
+    "createdAt": "2024-12-10 17:17:10",
+    "views": 0,
+    "postAuthorId": "f8d2f1dd-cb14-4e76-8d35-f9d1cf8762de"
+  },
+  {
+    "postId": "a447b9e5-f573-43da-b1d9-76cfd6be9b72",
+    "title": "은혼의 주인공은 긴토키",
+    "content": "긴토키가 남긴 게시글입니다.",
+    "postImage": "1733819474588-978517470-gintama.JPG",
+    "createdAt": "2024-12-10 17:31:14",
+    "views": 0,
+    "postAuthorId": "606ed766-67c1-431e-adff-88e881b32de4"
   }
 ]
