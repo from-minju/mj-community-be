@@ -101,7 +101,7 @@ export const deletePost = async (postId) => {
 };
 
 
-export const getImageNameByPostId = async(postId) => {
+export const getPostImageNameByPostId = async(postId) => {
     try{
         const postsData = await getAllPosts();
         const postData = postsData.find((post) => post.postId === postId);

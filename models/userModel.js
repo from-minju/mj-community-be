@@ -96,3 +96,18 @@ export const changePassword = async (userId, newPassword) => {
         throw error;
     }
 };
+
+export const getProfileImageNameByUserId = async (userId) => {
+    try{
+        const user = await getUserById(userId);
+
+        if(!user){
+            return false;
+        }
+
+        return user.profileImage;
+        
+    }catch(error){
+        throw error;
+    }
+}

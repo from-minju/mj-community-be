@@ -1,7 +1,8 @@
 import multer from "multer";
 import path from "path";
-import { editProfile, getUserById, changePassword, getAllUsers } from "../models/userModel.js";
+import { editProfile, getUserById, changePassword, getAllUsers, getProfileImageNameByUserId } from "../models/userModel.js";
 import { defaultProfileImage } from "../config.js";
+import { deleteImage } from "../utils/fileUtils.js";
 
 export const getUserProfileController = async (req, res) => {
     try{
@@ -24,9 +25,34 @@ export const getUserProfileController = async (req, res) => {
 
 
 export const editProfileController = async(req, res) => {
+    const userId = req.session.userId;
+
+    if (!userId) {
+        return res.status(401).json({ message: "로그인 필요" });
+    }
+
     try{
-        const userId = req.params.userId;
-        const editedUserData = req.body;
+        const newProfileImageName = req.file ? req.file.filename : null;
+
+        const editedUserData = {
+            nickname: req.body.nickname,
+            profileImage: newProfileImageName || "default-user-profile.png",
+        }
+
+        /** 테스트 (디버깅용) */
+        console.log(userId);
+        console.log(req.body);
+        console.log(req.body.nickname);
+        console.log(newProfileImageName);
+        // console.log(req.body.file.filename);
+        // console.log(editedUserData);
+        
+        // 기존 프로필 이미지 삭제
+        const previousImageName = await getProfileImageNameByUserId(userId);
+        if(previousImageName){
+            const filePath = path.join(process.cwd(), 'uploads', previousImageName);
+            deleteImage(filePath);
+        }
 
         await editProfile(userId, editedUserData);
 

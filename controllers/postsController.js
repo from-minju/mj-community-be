@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 import path from 'path';
 import { createPost, getAllPosts, getPostById, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
-    getImageNameByPostId,} from "../models/postModel.js";
+    getPostImageNameByPostId,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 import { deleteImage } from "../utils/fileUtils.js";
 
@@ -110,7 +110,7 @@ export const editPostController = async(req, res) => {
             editedPostData.postImage = postImage;
 
             //uploads의 기존 이미지 삭제하기
-            const previousImageName = await getImageNameByPostId(postId);
+            const previousImageName = await getPostImageNameByPostId(postId);
             if(previousImageName){
                 const filePath = path.join(process.cwd(), 'uploads', previousImageName);
                 deleteImage(filePath);
@@ -137,7 +137,7 @@ export const deletePostController = async(req, res) => {
 
     try{
         //uploads의 이미지 삭제하기
-        const previousImageName = await getImageNameByPostId(postId);
+        const previousImageName = await getPostImageNameByPostId(postId);
         const filePath = path.join(process.cwd(), 'uploads', previousImageName);
         deleteImage(filePath);
 
