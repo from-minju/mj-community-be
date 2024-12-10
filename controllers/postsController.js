@@ -2,9 +2,11 @@ import { v4 } from "uuid";
 import path from 'path';
 import { createPost, getAllPosts, getPostById, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
-    getPostImageNameByPostId,} from "../models/postModel.js";
+    getPostImageNameByPostId,
+    getLikesByPostId,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 import { deleteImage } from "../utils/fileUtils.js";
+import { getUserById } from "../models/userModel.js";
 
 
 function getCurrentDate() {
@@ -36,9 +38,32 @@ export const getPostsController =async(req, res) => {
 export const getPostController = async(req, res) => {
 
     const postId = req.params.postId;
+    // const userId = req.session.userId; //TODO: 인증/인가 - 세션 확인하고 인증된사용자만 응답해주기.
     
     try{
-        const postData = await getPostById(postId);
+        const post = await getPostById(postId);
+        const postAuthor = await getUserById(post.postAuthorId);
+
+        const comments = await getCommentsByPostId(postId);
+        const numComments = comments ? comments.length : 0;
+
+        const likes = await getLikesByPostId(postId);
+        const numLikes = likes ? likes.length : 0;
+
+        const postData = {
+            postId: post.postId,
+            title: post.title,
+            content: post.content,
+            postImage: post.postImage,
+            createdAt: post.createdAt,
+            likes: numLikes, 
+            comments: numComments,
+            views: post.views, // TODO: 
+            userId: postAuthor.userId,
+            nickname: postAuthor.nickname,
+            profileImage: postAuthor.profileImage
+        }
+
         res.status(200).json({
             message: "게시물 상세 조회 성공",
             data: postData

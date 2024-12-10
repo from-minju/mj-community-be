@@ -8,6 +8,8 @@ const __dirname = path.dirname(__filename);
 
 const postsFilePath = path.join(__dirname, '../data/posts.json');
 const commentsFilePath = path.join(__dirname, '../data/comments.json');
+const likesFilePath = path.join(__dirname, '../data/likes.json');
+
 
 /**
  * 게시물
@@ -217,6 +219,22 @@ export const deleteCommentsByPostId = async(postId) => {
  * 좋아요
  * --------------------------------------------------
  */
+
+const getAllLikes = async() => {
+    const data = await fs.readFile(likesFilePath, 'utf-8');
+    return JSON.parse(data);
+};
+
+export const getLikesByPostId = async(postId) => {
+    try{
+        const allLikes = await getAllLikes();
+        const postLikes = allLikes[postId] || [];
+
+        return postLikes;
+    }catch(error){
+        throw error;
+    }
+};
 
 export const likePost = async() => {
 
