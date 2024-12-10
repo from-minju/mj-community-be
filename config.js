@@ -1,1 +1,1 @@
-export const defaultProfileImage = "default-user-profile.png"
+export const defaultProfileImageName = "default-user-profile.png"

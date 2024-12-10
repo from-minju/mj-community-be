@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { editProfile, getUserById, changePassword, getAllUsers, getProfileImageNameByUserId } from "../models/userModel.js";
-import { defaultProfileImage } from "../config.js";
+import { defaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
 
 export const getUserProfileController = async (req, res) => {
@@ -14,7 +14,7 @@ export const getUserProfileController = async (req, res) => {
             data: {
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage || defaultProfileImage
+                profileImage: user.profileImage || defaultProfileImageName
             }
         });
     }catch(error){
@@ -38,18 +38,12 @@ export const editProfileController = async(req, res) => {
             nickname: req.body.nickname,
             profileImage: newProfileImageName || "default-user-profile.png",
         }
-
-        /** 테스트 (디버깅용) */
-        console.log(userId);
-        console.log(req.body);
-        console.log(req.body.nickname);
-        console.log(newProfileImageName);
-        // console.log(req.body.file.filename);
-        // console.log(editedUserData);
         
         // 기존 프로필 이미지 삭제
         const previousImageName = await getProfileImageNameByUserId(userId);
-        if(previousImageName){
+        if(previousImageName &&
+            previousImageName !== defaultProfileImageName
+        ){
             const filePath = path.join(process.cwd(), 'uploads', previousImageName);
             deleteImage(filePath);
         }
@@ -107,8 +101,18 @@ export const checkNicknameController = async(req, res) => {
 
     try{
         const users = await getAllUsers();
-        const isDuplicate = users.some(user => user.nickname === nickname);
+        let isDuplicate = users.some(user => user.nickname === nickname);
 
+        // 닉네임에 변경이 없다면, 중복되지 않았다고 처리함. 
+        if(req.session.userId){
+            const userId = req.session.userId;
+            const user = await getUserById(userId);
+            if(user.nickname === nickname){
+                isDuplicate = false;
+            }
+        }
+        
+        // 응답
         if(isDuplicate){
             res.status(200).json({ message: "이미 존재하는 닉네임입니다.", isDuplicate: isDuplicate });
         }else{

@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { v4 } from "uuid";
 import {createUser, getUserByEmail, getUserById} from "../models/userModel.js";
 import { upload } from "../middleware/multer.js";
-import { defaultProfileImage } from '../config.js';
+import { defaultProfileImageName } from '../config.js';
 const saltRounds = 10;
 
 
@@ -23,7 +23,7 @@ export const checkAuthenticationController = async(req, res) => {
                 userId: user.userId,
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage || defaultProfileImage
+                profileImage: user.profileImage || defaultProfileImageName
             }
         });
     }catch(error){
@@ -44,35 +44,33 @@ export const logoutController = async(req, res) => {
 
 
 export const signupController = async(req, res) => {
-    upload.single('profileImage')(req, res, async (err) => {
-        if(err){
-            console.error("Multer error: ", err);
-            return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
-        }
 
-        const { email, password, nickname } = req.body;
-        const profileImage = req.file ? `/uploads/${req.file.filename}` : `/uploads/default-user-profile.png`; // 업로드된 파일 경로
-        const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
+    const { email, password, nickname } = req.body;
+    const profileImage = req.file ? `${req.file.filename}` : defaultProfileImageName; // 업로드된 파일 경로
+    const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
 
-        // TODO: 유효성 검사 추가
-        // TODO: 이메일 중복 검사
+    // TODO: 유효성 검사 추가
+    // TODO: 이메일 중복 검사
 
-        const newUser = {
-            userId: v4(),
-            email: email.trim(),
-            password: hashedPassword,
-            nickname: nickname.trim(),
-            profileImage: profileImage || defaultProfileImage, // 저장된 이미지 경로
-        };
+    const newUser = {
+        userId: v4(),
+        email: email.trim(),
+        password: hashedPassword,
+        nickname: nickname.trim(),
+        profileImage: profileImage, // 저장된 이미지 경로
+    };
 
-        try {
-            await createUser(newUser); // 데이터베이스에 사용자 추가
-            res.status(201).json({ message: '회원가입 성공' });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: '서버 에러 발생'});
-        }
-    })
+    try {
+        await createUser(newUser); // 데이터베이스에 사용자 추가
+        res.status(201).json({ message: '회원가입 성공' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: '서버 에러 발생'});
+    }
+
+    // upload.single('profileImage')(req, res, async (err) => {
+        
+    // })
 }
 
 export const loginController = async(req, res) => {
