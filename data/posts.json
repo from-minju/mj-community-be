@@ -1,18 +1,5 @@
 [
   {
-    "postId": "409d54bc-56e6-44aa-9eb0-901e67e3bf76",
-    "title": "JavaScript",
-    "content": "자바스크립트",
-    "postImage": "1733806756307-211704392-js_logo.png",
-    "createdAt": "2024-12-10 13:58:21",
-    "likes": 0,
-    "comments": 0,
-    "views": 0,
-    "userId": null,
-    "nickname": "테스트닉네임",
-    "profileImage": "default-user-profile.png"
-  },
-  {
     "postId": "2e2e66f1-f02c-4818-b69e-83035889c94a",
     "title": "수퍼노바",
     "content": "사건은 다가와, ah-oh, ayy\r\n거세게 커져가, ah-oh, ayy\r\nThat tick, that tick, tick bomb\r\nThat tick, that tick, tick bomb\r\n감히 건드리지 못할 걸 (누구도 말이야)\r\n지금 내 안에선, su-su-su-supernova",
@@ -25,8 +12,8 @@
   },
   {
     "postId": "ee66584d-0539-476c-b03d-078209ed44e3",
-    "title": "테스트",
-    "content": "테스트입니다.",
+    "title": "카구라입니당",
+    "content": "구라다제~",
     "postImage": null,
     "createdAt": "2024-12-10 17:17:10",
     "views": 0,
@@ -35,7 +22,7 @@
   {
     "postId": "a447b9e5-f573-43da-b1d9-76cfd6be9b72",
     "title": "은혼의 주인공은 긴토키",
-    "content": "긴토키가 남긴 게시글입니다.",
+    "content": "긴토키가 남긴 게시글입니다.(수정함)",
     "postImage": "1733819474588-978517470-gintama.JPG",
     "createdAt": "2024-12-10 17:31:14",
     "views": 0,

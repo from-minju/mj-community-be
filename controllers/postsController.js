@@ -56,7 +56,7 @@ export const getPostsController =async(req, res) => {
             message: "게시물 목록 조회 성공",
             data: postsData
         });
-        
+
     } catch(error){
         console.log(error); //getAllPosts의 reject()인자 리턴됨
         res.status(500).json({message: "게시물 목록 조회 실패"});
@@ -204,13 +204,31 @@ export const deletePostController = async(req, res) => {
  */
 
 export const getCommentsController = async(req, res) => {
+    const postId = req.params.postId;
+    let commentsData = [];
+
     try{
-        const postId = req.params.postId;
         const comments = await getCommentsByPostId(postId);
+
+        for(const comment of comments){
+
+            const commentAuthor = await getUserById(comment.commentAuthorId);
+
+            const commentData = {
+                commentId: comment.commentId,
+                content: comment.content,
+                createdAt: comment.createdAt,
+                commentAuthorId: comment.commentAuthorId,
+                nickname: commentAuthor.nickname,
+                profileImage: commentAuthor.profileImage
+            }
+            
+            commentsData.push(commentData);
+        }
 
         res.status(200).json({
             message: "댓글 목록 조회 성공",
-            data: comments
+            data: commentsData
         });
 
     }catch(error){
