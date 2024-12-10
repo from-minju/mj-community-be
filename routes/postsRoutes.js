@@ -4,13 +4,14 @@ import {
     getCommentsController, createCommentController, editCommentController, deleteCommentController,
     likePostController, unlikePostController
 } from '../controllers/postsController.js';
+import { upload } from '../middleware/multer.js';
 
 const router = express.Router();
 
 // 게시물 라우터 연결
 router.get('/', getPostsController);
 router.get('/:postId',getPostController);
-router.post('/', createPostController);
+router.post('/', upload.single('postImage'),createPostController);
 router.put('/:postId', editPostController);
 router.delete('/:postId', deletePostController);
 

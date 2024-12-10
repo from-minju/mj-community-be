@@ -5,7 +5,7 @@ import { createPost, getAllPosts, getPostById, editPost, deletePost,
     getPostImageNameByPostId,
     getLikesByPostId,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
-import { deleteImage } from "../utils/fileUtils.js";
+import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
 
 
@@ -22,12 +22,41 @@ function getCurrentDate() {
 
 // GET 게시물 목록
 export const getPostsController =async(req, res) => {
+    let postsData = [];
+
     try{
-        const postsData = await getAllPosts();
+        const posts = await getAllPosts();
+
+        for(const post of posts){
+
+            const postId = post.postId;
+            const postAuthor = await getUserById(post.postAuthorId);
+    
+            const comments = await getCommentsByPostId(postId);
+            const numComments = comments ? comments.length : 0;
+
+            const likes = await getLikesByPostId(postId);
+            const numLikes = likes ? likes.length : 0;
+
+            const postData = {
+                postId: postId,
+                title: post.title,
+                createdAt: post.createdAt,
+                likes: numLikes,
+                comments: numComments,
+                views: post.views,
+                nickname: postAuthor.nickname,
+                profileImage: postAuthor.profileImage
+            };
+
+            postsData.push(postData);
+        }
+
         res.status(200).json({
             message: "게시물 목록 조회 성공",
             data: postsData
         });
+        
     } catch(error){
         console.log(error); //getAllPosts의 reject()인자 리턴됨
         res.status(500).json({message: "게시물 목록 조회 실패"});
@@ -77,41 +106,31 @@ export const getPostController = async(req, res) => {
 
 // POST 게시물 작성
 export const createPostController = async(req, res) => {
-    upload.single('postImage')(req, res, async (err) => {
-        if(err){
-            console.error("Multer error: ", err);
-            return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
-        }
+    const {title, content} = req.body;
+    const userId = req.session.userId;
+    const postImage = req.file ? `${req.file.filename}` : null;
 
-        const {title, content} = req.body;
-        const postImage = req.file ? `${req.file.filename}` : null; // 업로드된 파일 경로
+    const newPost = {
+        postId: v4(),
+        title: title,
+        content: content,
+        postImage: postImage,
+        createdAt: getCurrentDate(), 
+        views: 0,
+        postAuthorId: userId
+    };
 
-        const newPost = {
-            postId: v4(),
-            title: title,
-            content: content,
-            postImage: postImage,
-            createdAt: getCurrentDate(), 
-            likes: 0,
-            comments: 0,
-            views: 0,
-            userId: null, //TODO: 
-            nickname: "테스트닉네임", // TODO: session, 사용자 정보는 Controller에서 처리하기. 
-            profileImage: 'default-user-profile.png' // TODO:
-        };
+    try{
+        const postId = await createPost(newPost);
 
-        try{
-            const postId = await createPost(newPost);
-            res.status(201).json({
-                message: "게시물 작성 성공", 
-                data: {postId: postId}});
-    
-        } catch(error){
-            console.log(error);
-            res.status(500).json({message: "서버 에러 발생"});
-        }
-        
-    });
+        res.status(201).json({
+            message: "게시물 작성 성공", 
+            data: {postId: postId}});
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
 };
 
 
@@ -137,7 +156,7 @@ export const editPostController = async(req, res) => {
             //uploads의 기존 이미지 삭제하기
             const previousImageName = await getPostImageNameByPostId(postId);
             if(previousImageName){
-                const filePath = path.join(process.cwd(), 'uploads', previousImageName);
+                const filePath = getFilePath(previousImageName);
                 deleteImage(filePath);
             }
         }
@@ -162,10 +181,12 @@ export const deletePostController = async(req, res) => {
 
     try{
         //uploads의 이미지 삭제하기
-        const previousImageName = await getPostImageNameByPostId(postId);
-        const filePath = path.join(process.cwd(), 'uploads', previousImageName);
-        deleteImage(filePath);
-
+        const previousPostImageName = await getPostImageNameByPostId(postId);
+        if(previousPostImageName){
+            const filePath = getFilePath(previousPostImageName);
+            deleteImage(filePath);
+        }
+        
         await deletePost(postId);
         await deleteCommentsByPostId(postId);
         res.status(200).json({message: "게시물 삭제 성공"});

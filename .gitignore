@@ -2,3 +2,5 @@
 node_modules
 uploads/*
 gitignore
+test.json
+test.js
