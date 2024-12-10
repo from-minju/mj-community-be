@@ -238,14 +238,19 @@ export const getCommentsController = async(req, res) => {
 };
 
 export const createCommentController = async(req, res) => {
+    const userId = req.session.userId;
+    const postId = req.params.postId;
+    const {content} = req.body;
+
+    if (!userId) {
+        return res.status(401).json({ message: "로그인 필요" });
+    }
+
     try{
-        const postId = req.params.postId;
-        const {content} = req.body;
+        
         const newCommentData = {
             commentId: v4(),
-            userId: "1234", //TODO:
-            nickname: "테스트닉네임", //TODO:
-            profileImage: "", //TODO: 
+            commentAuthorId: userId,
             content: content,
             createdAt: getCurrentDate()
         };
