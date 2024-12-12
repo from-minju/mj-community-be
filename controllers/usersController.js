@@ -1,8 +1,10 @@
 import multer from "multer";
+import bcrypt from 'bcrypt';
 import path from "path";
 import { editProfile, getUserById, changePassword, getAllUsers, getProfileImageNameByUserId } from "../models/userModel.js";
 import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
+const saltRounds = 10;
 
 export const getUserProfileController = async (req, res) => {
     try{
@@ -65,11 +67,24 @@ export const editProfileController = async(req, res) => {
 
 
 export const changePasswordController = async(req, res) => {
-    try{
-        const userId = req.params.userId;
-        const newPassword = req.body.password;
+    const userId = req.session.userId;
+    const newPassword = req.body.password;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-        await changePassword(userId, newPassword);
+    if(!userId){
+        res.status(401).json({message: "로그인 필요"});
+    }
+
+    try{
+        const user = await getUserById(userId);
+        const isPasswordSame = await bcrypt.compare(newPassword, user.password);
+        
+        if(isPasswordSame){
+            res.status(400).json({message: "새 비밀번호는 기존 비밀번호와 같을 수 없습니다. 다시 입력해주세요."});
+            return;
+        }
+
+        await changePassword(userId, hashedNewPassword);
 
         res.status(200).json({message: "비밀번호 변경 성공"});
 

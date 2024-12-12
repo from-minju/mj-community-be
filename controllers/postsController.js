@@ -88,7 +88,7 @@ export const getPostController = async(req, res) => {
             likes: numLikes, 
             comments: numComments,
             views: post.views, // TODO: 
-            userId: postAuthor.userId,
+            postAuthorId: postAuthor.userId,
             nickname: postAuthor.nickname,
             profileImage: postAuthor.profileImage
         }
@@ -266,14 +266,13 @@ export const createCommentController = async(req, res) => {
 };
 
 export const editCommentController = async(req, res) => {
+    //TODO: 인증/인가 확인후 로직 실행하기.
+    
     try{
         const {postId, commentId} = req.params;
         const {content} = req.body;
         const editedCommentData = {
-            // nickname: "테스트수정닉네임", //TODO:
-            // profileImage: "editedProfile.img", //TODO: 
             content: content,
-            // createdAt: getCurrentDate()
         };
 
         await editComment(postId, commentId, editedCommentData);
