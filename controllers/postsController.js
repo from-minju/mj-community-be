@@ -73,7 +73,7 @@ export const getPostController = async(req, res) => {
     const userId = req.session.userId; 
 
     if(!userId){
-        res.status(401).json({message: "로그인 필요"});
+        return res.status(401).json({message: "로그인 필요"});
     }
 
     
@@ -318,7 +318,7 @@ export const getLikesController = async(req, res) => {
     const userId = req.session.userId;
 
     if(!userId){
-        res.status(401).json({ message: "로그인 필요" });
+        return res.status(401).json({ message: "로그인 필요" });
     }
 
     try{
@@ -345,7 +345,7 @@ export const likePostController = async(req, res) => {
     const userId = req.session.userId;
 
     if(!userId){
-        res.status(401).json({ message: "로그인 필요" });
+        return res.status(401).json({ message: "로그인 필요" });
     }
 
     try{
@@ -373,7 +373,7 @@ export const unlikePostController = async(req, res) => {
     const userId = req.session.userId;
 
     if(!userId){
-        res.status(401).json({ message: "로그인 필요" });
+        return res.status(401).json({ message: "로그인 필요" });
     }
 
     try{

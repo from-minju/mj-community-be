@@ -10,7 +10,7 @@ export const getUserProfileController = async (req, res) => {
     try{
         const userId = req.params.userId;
         const user = await getUserById(userId);
-        
+
         res.status(200).json({
             message: "사용자 정보 조회 성공",
             data: {
@@ -72,7 +72,7 @@ export const changePasswordController = async(req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
     if(!userId){
-        res.status(401).json({message: "로그인 필요"});
+        return res.status(401).json({message: "로그인 필요"});
     }
 
     try{
