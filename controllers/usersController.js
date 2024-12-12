@@ -10,7 +10,7 @@ export const getUserProfileController = async (req, res) => {
     try{
         const userId = req.params.userId;
         const user = await getUserById(userId);
-        console.log(user);
+        
         res.status(200).json({
             message: "사용자 정보 조회 성공",
             data: {

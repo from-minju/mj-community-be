@@ -13,6 +13,7 @@ export const checkAuthenticationController = async(req, res) => {
 
     try{
         const user = await getUserById(req.session.userId);
+
         if(!user){
             return res.status(404).json({message: "존재하지 않는 사용자입니다."});
         }
@@ -68,9 +69,6 @@ export const signupController = async(req, res) => {
         res.status(500).json({ message: '서버 에러 발생'});
     }
 
-    // upload.single('profileImage')(req, res, async (err) => {
-        
-    // })
 }
 
 export const loginController = async(req, res) => {

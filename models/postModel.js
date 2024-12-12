@@ -132,7 +132,7 @@ const getAllComments = async() => {
 export const getCommentsByPostId = async(postId) => {
     try{
         const allComments = await getAllComments();
-        const postComments = allComments[postId] || null;
+        const postComments = allComments[postId] || [];
 
         return postComments;
     }catch(error){
@@ -225,6 +225,11 @@ const getAllLikes = async() => {
     return JSON.parse(data);
 };
 
+export const getAllLikesByPostId = async(postId) => {
+    const allLikes = await getAllLikes();
+    return allLikes[postId] || [];
+}
+
 export const getLikesByPostId = async(postId) => {
     try{
         const allLikes = await getAllLikes();
@@ -236,10 +241,33 @@ export const getLikesByPostId = async(postId) => {
     }
 };
 
-export const likePost = async() => {
+export const likePost = async(postId, userId) => {
+    try{
+        const allLikes = await getAllLikes();
+
+        if(!allLikes[postId]){
+            allLikes[postId] = [];
+        }
+        console.log(allLikes[postId]);
+        allLikes[postId].push(userId);
+
+        await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
+
+    }catch(error){
+        throw error;
+    }
 
 };
 
-export const unlikePost = async() => {
+export const unlikePost = async(postId, userId) => {
+    try{
+        const allLikes = await getAllLikes();
+        const newPostLikes  = allLikes[postId].filter(item => item !== userId);
+        allLikes[postId] = newPostLikes;
 
+        await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
+
+    }catch(error){
+        throw error;
+    }
 };

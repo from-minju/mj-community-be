@@ -3,7 +3,10 @@ import path from 'path';
 import { createPost, getAllPosts, getPostById, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
     getPostImageNameByPostId,
-    getLikesByPostId,} from "../models/postModel.js";
+    getLikesByPostId,
+    likePost,
+    getAllLikesByPostId,
+    unlikePost,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
@@ -67,7 +70,12 @@ export const getPostsController =async(req, res) => {
 export const getPostController = async(req, res) => {
 
     const postId = req.params.postId;
-    // const userId = req.session.userId; //TODO: 인증/인가 - 세션 확인하고 인증된사용자만 응답해주기.
+    const userId = req.session.userId; 
+
+    if(!userId){
+        res.status(401).json({message: "로그인 필요"});
+    }
+
     
     try{
         const post = await getPostById(postId);
@@ -304,12 +312,83 @@ export const deleteCommentController = async(req, res) => {
  * --------------------------------------------------
  */
 
+export const getLikesController = async(req, res) => {
+
+    const postId = req.params.postId;
+    const userId = req.session.userId;
+
+    if(!userId){
+        res.status(401).json({ message: "로그인 필요" });
+    }
+
+    try{
+        const postLikes = await getAllLikesByPostId(postId);
+        let isLiked = postLikes.some(tempUserId => tempUserId === userId);
+
+        res.status(200).json({
+            message: "좋아요 조회 성공",
+            data: {
+                isLiked: isLiked,
+                likesCnt: postLikes.length,
+            }
+        })
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+
+}
+
 export const likePostController = async(req, res) => {
     const postId = req.params.postId;
-    //TODO: 현재 사용자ID가 좋아요 
+    const userId = req.session.userId;
+
+    if(!userId){
+        res.status(401).json({ message: "로그인 필요" });
+    }
+
+    try{
+        const postLikes = await getAllLikesByPostId(postId);
+        let isLiked = postLikes.some(tempUserId => tempUserId === userId);
+
+        // 이미 좋아요를 누른경우
+        if(isLiked){
+            res.status(409).json({ message: "이미 좋아요를 눌렀습니다." });
+            return;
+        }
+
+        // 좋아요 누르기
+        await likePost(postId, userId);
+        res.status(200).json({ message: "좋아요 성공" });
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
 };
 
 export const unlikePostController = async(req, res) => {
     const postId = req.params.postId;
-    //TODO: 현재 사용자ID가 좋아요 취소
+    const userId = req.session.userId;
+
+    if(!userId){
+        res.status(401).json({ message: "로그인 필요" });
+    }
+
+    try{
+        const postLikes = await getAllLikesByPostId(postId);
+        let isLiked = postLikes.some(tempUserId => tempUserId === userId);
+
+        // 이미 좋아요가 눌러져 있지 않은경우
+        if(!isLiked) return;
+
+        // 좋아요 취소
+        await unlikePost(postId, userId);
+        res.status(200).json({ message: "좋아요 취소 성공" });
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
 };
