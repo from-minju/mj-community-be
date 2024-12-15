@@ -7,7 +7,8 @@ import { createPost, getAllPosts, getPostById, editPost, deletePost,
     likePost,
     getAllLikesByPostId,
     unlikePost,
-    deleteLikesByPostId,} from "../models/postModel.js";
+    deleteLikesByPostId,
+    increaseViewCount,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
@@ -18,6 +19,8 @@ function getCurrentDate() {
     today.setHours(today.getHours() + 9); // 미국시간 기준이니까 9를 더해주면 대한민국 시간됨
     return today.toISOString().replace("T", " ").substring(0, 19); // 문자열로 바꿔주고 T를 빈칸으로 바꿔주면 yyyy-mm-dd hh:mm:ss 이런 형식 나옴
 }
+
+
 
 /**
  * 게시물
@@ -72,11 +75,20 @@ export const getPostController = async(req, res) => {
 
     const postId = req.params.postId;
     const userId = req.session.userId; 
+    const viewedPosts = req.cookies.viewedPosts ? JSON.parse(req.cookies.viewedPosts) : [];
 
     if(!userId){
         return res.status(401).json({message: "로그인 필요"});
     }
 
+    // 조회수 증가 조건
+    if (!viewedPosts.includes(postId)) {
+        await increaseViewCount(postId);
+        viewedPosts.push(postId);
+
+        // 쿠키에 저장 (30분 유효)
+        res.cookie('viewedPosts', JSON.stringify(viewedPosts), { maxAge: 1800000, httpOnly: true });
+    }
     
     try{
         const post = await getPostById(postId);
@@ -180,8 +192,7 @@ export const editPostController = async(req, res) => {
             res.status(500).json({message: "서버 에러 발생"});
         }
     });
-    //TODO: 사용자 Id로 프로필사진, 닉네임 가져오기/ posts.json에도 사용자id만 넣어두기.
-    //TODO: 이미지 파일이 바뀌면, 기존의 이미지 파일은 삭제하기. 
+
 }
 
 

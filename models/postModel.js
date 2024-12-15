@@ -119,6 +119,29 @@ export const getPostImageNameByPostId = async(postId) => {
     }
 }
 
+export const increaseViewCount = async(postId) => {
+    try{
+        const posts = await getAllPosts();
+        const postIndex = posts.findIndex((post) => post.postId === postId);
+        const views = posts[postIndex].views;
+    
+        if (postIndex === -1) {
+            throw new Error('게시물을 찾을 수 없습니다.');
+        }
+    
+        posts[postIndex] = {
+            ...posts[postIndex],
+            views: views + 1
+        }; 
+
+        await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
+
+    }catch(error){
+        throw error;
+    }
+
+}
+
 
 /**
  * 댓글
