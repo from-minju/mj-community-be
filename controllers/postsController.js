@@ -6,7 +6,8 @@ import { createPost, getAllPosts, getPostById, editPost, deletePost,
     getLikesByPostId,
     likePost,
     getAllLikesByPostId,
-    unlikePost,} from "../models/postModel.js";
+    unlikePost,
+    deleteLikesByPostId,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
@@ -197,6 +198,8 @@ export const deletePostController = async(req, res) => {
         
         await deletePost(postId);
         await deleteCommentsByPostId(postId);
+        await deleteLikesByPostId(postId);
+
         res.status(200).json({message: "게시물 삭제 성공"});
 
     }catch(error){

@@ -248,7 +248,6 @@ export const likePost = async(postId, userId) => {
         if(!allLikes[postId]){
             allLikes[postId] = [];
         }
-        console.log(allLikes[postId]);
         allLikes[postId].push(userId);
 
         await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
@@ -271,3 +270,15 @@ export const unlikePost = async(postId, userId) => {
         throw error;
     }
 };
+
+export const deleteLikesByPostId = async(postId) => {
+    try{
+        const allLikes = await getAllLikes();
+        delete allLikes[postId];
+
+        await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
+        
+    }catch(error){
+        throw error;
+    }
+}
