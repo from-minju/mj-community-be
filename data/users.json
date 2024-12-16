@@ -7,13 +7,6 @@
     "profileImage": "1733840228958-328134314-gintoki.jpg"
   },
   {
-    "userId": "f8d2f1dd-cb14-4e76-8d35-f9d1cf8762de",
-    "email": "test2@gmail.com",
-    "password": "$2b$10$apGjJ0tzm0arCYifvojFguU4BJLeGq658G/yNONJjxSvlALAnzqyq",
-    "nickname": "카구라",
-    "profileImage": "1733806320784-675526378-kagura.jpg"
-  },
-  {
     "userId": "255a1f1f-4c61-42b8-9301-b16662ee7fa0",
     "email": "snowball@gmail.com",
     "password": "$2b$10$TIZX75CYagwTVHsqY6rvJeRoUqBLDeUQJ4XpD4YDCZ3ZOWeofsTKi",
@@ -21,24 +14,10 @@
     "profileImage": "1733806647459-579194609-profile_bunny.jpg"
   },
   {
-    "userId": "ef544380-f87e-401d-9aee-40619fd4652a",
-    "email": "test3@gmail.com",
-    "password": "$2b$10$FEaZd60FDsdgvMJxYhXld.h13deDPNp5OBRThwpSMlM7JkbUTsdYG",
-    "nickname": "신파치",
-    "profileImage": "1734008887646-290670192-sinpachi.jpg"
-  },
-  {
-    "userId": "243c33e8-d8bc-4d66-a934-f0c211ac6d23",
-    "email": "test4@gmail.com",
-    "password": "$2b$10$4yh01UBLndpBJMazxWj27e8hMk.21bNoma2HcmKiDJQ3HI3fAD8r2",
-    "nickname": "히지카타토시로",
-    "profileImage": "1734010807008-575488807-hijikata-side.jpg"
-  },
-  {
-    "userId": "7e690c63-f18d-460d-99c2-f938de1d4e16",
-    "email": "test5@gmail.com",
-    "password": "$2b$10$ksDPP/0iYAChJSQGxFjkOesK9Rh01Gn9DEtTI0z7hONHhcQTPMP.G",
-    "nickname": "오키타소고",
-    "profileImage": "1734011460860-372626599-sogo.jpg"
+    "userId": "cd7e1847-5013-4cc9-8420-73a976cb6bbe",
+    "email": "test2@gmail.com",
+    "password": "$2b$10$VnOVknzZza.0xU.JP21yxOU7QnTDBY50rOCy3r279Cw1at9GR2kgO",
+    "nickname": "카구라",
+    "profileImage": "1734328766050-885610349-kagura.jpg"
   }
 ]

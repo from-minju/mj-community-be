@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import path from 'path';
-import { createPost, getAllPosts, getPostById, editPost, deletePost,
+import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
     getPostImageNameByPostId,
     getLikesByPostId,
@@ -91,7 +91,7 @@ export const getPostController = async(req, res) => {
     }
     
     try{
-        const post = await getPostById(postId);
+        const post = await getPostByPostId(postId);
         const postAuthor = await getUserById(post.postAuthorId);
 
         const comments = await getCommentsByPostId(postId);
