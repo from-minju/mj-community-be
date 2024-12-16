@@ -149,3 +149,26 @@ export const uploadProfileImageController = (req, res) => {
 
 }
 
+export const deleteAccountController = async(req, res) => {
+    const userId = req.session.userId;
+
+    if(!userId){
+        return res.status(401).json({message: "로그인 필요"});
+    }
+
+    // 좋아요 삭제
+
+    // 댓글 삭제
+
+    // 게시물 삭제
+
+    // 사용자 정보 삭제 (프로필 사진까지)
+
+    // 로그아웃(세션 삭제)
+
+
+    res.status(200).json({ message: "회원탈퇴 성공" });
+
+
+}
+
