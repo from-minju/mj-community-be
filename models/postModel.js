@@ -189,10 +189,6 @@ export const increaseViewCount = async(postId) => {
  * 댓글
  * --------------------------------------------------
  */
-// const getAllComments = async() => {
-//     const data = await fs.readFile(commentsFilePath, 'utf-8');
-//     return JSON.parse(data);
-// };
 
 export const getCommentsByPostId = async(postId) => {
     try{
@@ -238,6 +234,14 @@ export const createComment = async(postId, newCommentData) => {
             [commentId, content, postId, commentAuthorId]
         );
 
+        await pool.query(`
+            UPDATE post
+            SET comments = comments + 1
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
+
     }catch(error){
         throw error;
     }
@@ -272,6 +276,15 @@ export const deleteComment = async(postId, commentId) => {
             `,
             [commentId, postId]
         );
+
+        await pool.query(`
+            UPDATE post
+            SET comments = comments - 1
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
+
     } catch(error){
         throw error;
     }
@@ -299,51 +312,44 @@ export const deleteCommentsByPostId = async(postId) => {
  * --------------------------------------------------
  */
 
-const getAllLikes = async() => {
-    const data = await fs.readFile(likesFilePath, 'utf-8');
-    return JSON.parse(data);
-};
-
-export const getAllLikesByPostId = async(postId) => {
-    const allLikes = await getAllLikes();
-    return allLikes[postId] || [];
-}
-
-export const getLikesByPostId = async(postId) => {
+export const likePost = async(likeId, postId, userId) => {
     try{
-        const allLikes = await getAllLikes();
-        const postLikes = allLikes[postId] || [];
+        await pool.query(`
+            INSERT INTO like (like_id, post_id, user_id)
+            VALUES (?, ?, ?)
+            `,
+            [likeId, postId, userId]
+        );
 
-        return postLikes;
-    }catch(error){
-        throw error;
-    }
-};
-
-export const likePost = async(postId, userId) => {
-    try{
-        const allLikes = await getAllLikes();
-
-        if(!allLikes[postId]){
-            allLikes[postId] = [];
-        }
-        allLikes[postId].push(userId);
-
-        await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
+        await pool.query(`
+            UPDATE post
+            SET likes = likes + 1
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
 
     }catch(error){
         throw error;
     }
-
 };
 
 export const unlikePost = async(postId, userId) => {
     try{
-        const allLikes = await getAllLikes();
-        const newPostLikes  = allLikes[postId].filter(item => item !== userId);
-        allLikes[postId] = newPostLikes;
+        await pool.query(`
+            DELETE FROM like
+            WHERE post_id = ? AND user_id = ?
+            `,
+            [postId, userId]
+        );
 
-        await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
+        await pool.query(`
+            UPDATE post
+            SET likes = likes - 1
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
 
     }catch(error){
         throw error;
@@ -352,11 +358,13 @@ export const unlikePost = async(postId, userId) => {
 
 export const deleteLikesByPostId = async(postId) => {
     try{
-        const allLikes = await getAllLikes();
-        delete allLikes[postId];
+        await pool.query(`
+            DELETE FROM like
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
 
-        await fs.writeFile(likesFilePath, JSON.stringify(allLikes, null, 2), 'utf-8');
-        
     }catch(error){
         throw error;
     }
