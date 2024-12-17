@@ -29,39 +29,15 @@ function getCurrentDate() {
 
 // GET 게시물 목록
 export const getPostsController =async(req, res) => {
-    let postsData = [];
-
     try{
         const posts = await getAllPosts();
 
-        for(const post of posts){
-
-            const postId = post.postId;
-            const postAuthor = await getUserById(post.postAuthorId);
-    
-            const comments = await getCommentsByPostId(postId);
-            const numComments = comments ? comments.length : 0;
-
-            const likes = await getLikesByPostId(postId);
-            const numLikes = likes ? likes.length : 0;
-
-            const postData = {
-                postId: postId,
-                title: post.title,
-                createdAt: post.createdAt,
-                likes: numLikes,
-                comments: numComments,
-                views: post.views,
-                nickname: postAuthor.nickname,
-                profileImage: postAuthor.profileImage
-            };
-
-            postsData.push(postData);
-        }
+        // 디버깅용
+        console.log(posts);
 
         res.status(200).json({
             message: "게시물 목록 조회 성공",
-            data: postsData
+            data: posts
         });
 
     } catch(error){
@@ -92,27 +68,22 @@ export const getPostController = async(req, res) => {
     
     try{
         const post = await getPostByPostId(postId);
-        const postAuthor = await getUserById(post.postAuthorId);
-
-        const comments = await getCommentsByPostId(postId);
-        const numComments = comments ? comments.length : 0;
-
-        const likes = await getLikesByPostId(postId);
-        const numLikes = likes ? likes.length : 0;
-
         const postData = {
-            postId: post.postId,
+            postId: post.post_id,
             title: post.title,
             content: post.content,
-            postImage: post.postImage,
-            createdAt: post.createdAt,
-            likes: numLikes, 
-            comments: numComments,
-            views: post.views, // TODO: 
-            postAuthorId: postAuthor.userId,
-            nickname: postAuthor.nickname,
-            profileImage: postAuthor.profileImage
+            postImage: post.post_image,
+            createdAt: post.created_at, //TODO2: 시간 변환 
+            likes: post.likes, 
+            comments: post.comments,
+            views: post.views,
+            postAuthorId: post.user_id,
+            nickname: post.nickname,
+            profileImage: post.profile_image
         }
+
+        //디버깅용
+        console.log(postData);
 
         res.status(200).json({
             message: "게시물 상세 조회 성공",

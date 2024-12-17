@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 } from 'uuid';
+import { pool } from '../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,25 +17,58 @@ const likesFilePath = path.join(__dirname, '../data/likes.json');
  * --------------------------------------------------
  */
 
-export const getAllPosts = async() => {
-    try{
-        const data = await fs.readFile(postsFilePath, 'utf-8');
-        return JSON.parse(data);
-
-    }catch(error){
+export const getAllPosts = async () => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                p.post_id AS postId, 
+                p.title,
+                p.created_at AS createdAt,  
+                p.likes, 
+                p.views, 
+                p.comments, 
+                u.nickname, 
+                u.profile_image AS profileImage
+            FROM post p
+            JOIN user u ON p.user_id = u.user_id
+        `);
+        return rows; // 결과는 카멜케이스로 매핑된 값으로 반환됩니다.
+    } catch (error) {
         throw error;
     }
 };
 
 
-export const getPostById = async(postId) => {
+export const getPostByPostId = async(postId) => {
     try{
-        const postsData = await getAllPosts();
-        const postData = postsData.find((post) => post.postId === postId);
+        const [rows] = await pool.query(`
+            SELECT 
+                p.post_id AS postId, 
+                p.title, 
+                p.content, 
+                p.created_at AS createdAt, 
+                p.post_image AS postImage, 
+                p.likes, 
+                p.views, 
+                p.comments, 
+                u.user_id AS postAuthorId, 
+                u.nickname, 
+                u.profile_image AS profileImage
+            FROM post p 
+            JOIN user u ON p.user_id = u.user_id
+            WHERE p.post_id = ?
+            `,
+            [postId]
+        );
 
-        if(!postData){throw new Error("해당 ID의 게시물이 존재하지 않습니다.");}
+        if (rows.length === 0) {
+            throw new Error('해당 ID의 게시물이 존재하지 않습니다.');
+        }
 
-        return postData;
+        // 디버깅용
+        console.log(rows[0]);
+
+        return rows[0];
 
     }catch(error){
         throw error;
@@ -47,36 +81,51 @@ export const getPostById = async(postId) => {
  * @returns postId
  */
 export const createPost = async(newPost) => {
+
+    /** newPost 형식
+        const newPost = {
+            postId: v4(),
+            title: title,
+            content: content,
+            postImage: postImage,
+            //생략 createdAt: getCurrentDate(), 
+            //생략 likes: 0, 
+            //생략 views: 0, 
+            //생략 comments: 0, 
+            postAuthorId: userId
+        };
+    */
+
+    const {postId, title, content, postImage, postAuthorId} = newPost
+
     try{
-        const posts = await getAllPosts();
+        const result = await pool.query(`
+            INSERT INTO post (post_id, title, content, post_image, likes, views, comments, user_id)
+            VALUES (?, ?, ?, ?, 0, 0, 0, ?)
+            `, 
+            [postId, title, content, postImage, postAuthorId]
+        );
 
-        posts.push(newPost);
-
-        await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
-
-        return newPost.postId;
+        return result[0].post_id;
 
     }catch(error){
         throw error;
     }
 };
 
-
+// TODO: 이미지 바뀌지 않은 경우에 대한 처리...등
 export const editPost = async (postId, editedPostData) => {
-    try{
-        const posts = await getAllPosts();
-        const postIndex = posts.findIndex((post) => post.postId === postId);
-    
-        if (postIndex === -1) {
-            throw new Error('게시물을 찾을 수 없습니다.');
-        }
-    
-        posts[postIndex] = {
-            ...posts[postIndex],
-            ...editedPostData,
-        }; 
 
-        await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
+    const {title, content, postImage} = editedPostData;
+
+    try{
+        await pool.query(`
+            UPDATE post
+            SET title = ?, content = ?, post_Image = ?
+            WHERE post_id = ?
+            `, 
+            [title, content, postImage, postId]
+        );
 
     }catch(error){
         throw error;
@@ -85,17 +134,14 @@ export const editPost = async (postId, editedPostData) => {
 
 
 export const deletePost = async (postId) => {
-    try{
-        const posts = await getAllPosts();
-        const postIndex = posts.findIndex((post) => post.postId === postId);
-    
-        if (postIndex === -1) {
-            throw new Error('게시물을 찾을 수 없습니다.');
-        }
-    
-        posts.splice(postIndex, 1);
 
-        await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
+    try{
+        await pool.query(`
+            DELETE FROM post
+            WHERE post_id = ?
+            `, 
+            [postId]
+        );
 
     }catch(error){
         throw error;
@@ -105,14 +151,17 @@ export const deletePost = async (postId) => {
 
 export const getPostImageNameByPostId = async(postId) => {
     try{
-        const postsData = await getAllPosts();
-        const postData = postsData.find((post) => post.postId === postId);
+        const [rows] = await pool.query(`
+            SELECT post_image AS postImage
+            FROM post
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
 
-        if(!postData){
-            return false;
-        }
+        if (rows.length === 0) return false;
 
-        return postData.postImage;
+        return rows[0].postImage;
 
     }catch(error){
         throw error;
@@ -120,26 +169,20 @@ export const getPostImageNameByPostId = async(postId) => {
 }
 
 export const increaseViewCount = async(postId) => {
-    try{
-        const posts = await getAllPosts();
-        const postIndex = posts.findIndex((post) => post.postId === postId);
-        const views = posts[postIndex].views;
-    
-        if (postIndex === -1) {
-            throw new Error('게시물을 찾을 수 없습니다.');
-        }
-    
-        posts[postIndex] = {
-            ...posts[postIndex],
-            views: views + 1
-        }; 
 
-        await fs.writeFile(postsFilePath, JSON.stringify(posts, null, 2), 'utf-8');
+    try{
+        await pool.query(`
+            UPDATE post 
+            SET views = views + 1
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
 
     }catch(error){
         throw error;
     }
-
+    
 }
 
 
@@ -147,10 +190,10 @@ export const increaseViewCount = async(postId) => {
  * 댓글
  * --------------------------------------------------
  */
-const getAllComments = async() => {
-    const data = await fs.readFile(commentsFilePath, 'utf-8');
-    return JSON.parse(data);
-};
+// const getAllComments = async() => {
+//     const data = await fs.readFile(commentsFilePath, 'utf-8');
+//     return JSON.parse(data);
+// };
 
 export const getCommentsByPostId = async(postId) => {
     try{
