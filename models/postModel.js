@@ -134,7 +134,6 @@ export const editPost = async (postId, editedPostData) => {
 
 
 export const deletePost = async (postId) => {
-
     try{
         await pool.query(`
             DELETE FROM post
@@ -197,31 +196,48 @@ export const increaseViewCount = async(postId) => {
 
 export const getCommentsByPostId = async(postId) => {
     try{
-        const allComments = await getAllComments();
-        const postComments = allComments[postId] || [];
+        const [rows] = await pool.query(`
+            SELECT
+                c.comment_id AS commentId,
+                c.content
+                c.created_at AS createdAt,
+                u.user_id AS commentAuthorId,
+                u.nickname
+                u.profile_image AS profileImage
+            FROM comment c
+            JOIN user u ON c.user_id = u.user_id
+            WHERE c.post_id = ?
+            `, 
+            [postId]
+        );
 
-        return postComments;
+        return rows;
+
     }catch(error){
         throw error;
     }
 };
 
 export const createComment = async(postId, newCommentData) => {
-    try{
-        const allComments = await getAllComments();
-        const newComment = {
-            ...newCommentData,
+    /** newCommentData 형식
+        const newCommentData = {
             commentId: v4(),
-        }
+            content: content,
+            //생략 createdAt: getCurrentDate(),
+            commentAuthorId: userId,
+        };
+    */
 
-        if(!allComments[postId]){
-            allComments[postId] = [];
-        }
+    const { commentId, content, commentAuthorId } = newCommentData;
 
-        allComments[postId].push(newComment);
+    try{
+        await pool.query(`
+            INSERT INTO comment (comment_id, content, post_id, user_id)
+            VALUES (?, ?, ?, ?)
+            `,
+            [commentId, content, postId, commentAuthorId]
+        );
 
-        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
-        
     }catch(error){
         throw error;
     }
@@ -229,20 +245,18 @@ export const createComment = async(postId, newCommentData) => {
 
 
 export const editComment = async (postId, commentId, editedCommentData) => {
+
+    const { content } = editedCommentData;
+
     try{
-        const allComments = await getAllComments();
-        const postComments = allComments[postId];
-        const commentIndex = postComments.findIndex(
-            (comment) => comment.commentId === commentId
+        await pool.query(`
+            UPDATE comment
+            SET content = ?
+            WHERE comment_id = ? ? AND post_id = ?
+            `,
+            [content, commentId, postId]
         );
 
-        allComments[postId][commentIndex] = {
-            ...postComments[commentIndex],
-            ...editedCommentData
-        };
-
-        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
-        
     } catch(error){
         throw error;
     }
@@ -250,30 +264,29 @@ export const editComment = async (postId, commentId, editedCommentData) => {
 
 
 export const deleteComment = async(postId, commentId) => {
+
     try{
-        const allComments = await getAllComments();
-        const postComments = allComments[postId];
-        const commentIndex = postComments.findIndex(
-            (comment) => comment.commentId === commentId
+        await pool.query(`
+            DELETE FROM comment
+            WHERE comment_id = ? AND post_id = ?
+            `,
+            [commentId, postId]
         );
-
-        allComments[postId].splice(commentIndex, 1);
-
-        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
-
     } catch(error){
         throw error;
     }
+    
 };
 
 
 export const deleteCommentsByPostId = async(postId) => {
     try{
-        const allComments = await getAllComments();
-        delete allComments[postId];
-
-        await fs.writeFile(commentsFilePath, JSON.stringify(allComments, null, 2), 'utf-8');
-        
+        await pool.query(`
+            DELETE FROM comment
+            WHERE post_id = ?
+            `,
+            [postId]
+        );
     }catch(error){
         throw error;
     }
