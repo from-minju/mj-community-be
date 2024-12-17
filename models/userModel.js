@@ -7,22 +7,34 @@ const __dirname = path.dirname(__filename);
 
 const usersFilePath = path.join(__dirname, '../data/users.json');
 
-export const getAllUsers = async() => {
-    try{
-        const data = await fs.readFile(usersFilePath, 'utf-8');
-        return JSON.parse(data);
-    }catch(error){
-        throw error;
-    }
-};
+// export const getAllUsers = async() => {
+//     try{
+//         const data = await fs.readFile(usersFilePath, 'utf-8');
+//         return JSON.parse(data);
+//     }catch(error){
+//         throw error;
+//     }
+// };
 
 export const createUser = async (newUser) => {
-    try{
-        const users = await getAllUsers();
 
-        users.push(newUser);
-        
-        await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
+    const { userId, email, password, nickname, profileImage } = newUser;
+    
+    try{
+        // const newUser = {
+        //     userId: v4(),
+        //     email: email.trim(),
+        //     password: hashedPassword,
+        //     nickname: nickname.trim(),
+        //     profileImage: profileImage, // 저장된 이미지 경로
+        // };
+
+        await pool.query(`
+            INSERT INTO user (user_id, email, password, nickname, profile_image)
+            VALUES (?, ?, ?, ?, ?)
+            `,
+            [userId, email, password, nickname, profileImage]
+        );
 
     }catch(error){
         throw error;
@@ -32,12 +44,24 @@ export const createUser = async (newUser) => {
 
 export const getUserById = async (userId) => {
     try{
-        const users = await getAllUsers();
-        const user = users.find((user) => user.userId === userId);
+        const [rows] = await pool.query(`
+            SELECT 
+                user_id AS userId
+                email
+                password
+                nickname
+                profile_image AS profileImage
+            FROM user
+            WHERE user_id = ?
+            `,
+            [userId]
+        );
 
-        if(!user) throw new Error('해당 ID의 사용자가 존재하지 않습니다.');
-        
-        return user;
+        if (rows.length === 0) {
+            throw new Error('해당 ID의 사용자가 존재하지 않습니다.');
+        }
+
+        return rows[0];
 
     } catch(error){
         throw error;
@@ -46,12 +70,25 @@ export const getUserById = async (userId) => {
 
 export const getUserByEmail = async (email) => {
     try{
-        const users = await getAllUsers();
-        const user = users.find((user) => user.email === email);
+        const [rows] = await pool.query(`
+            SELECT 
+                user_id AS userId
+                email
+                password
+                nickname
+                profile_image AS profileImage
+            FROM user
+            WHERE email = ?
+            `,
+            [email]
+        );
 
-        if(!user) throw new Error('해당 email의 사용자가 존재하지 않습니다.');
+        if (rows.length === 0) {
+            throw new Error('해당 ID의 사용자가 존재하지 않습니다.');
+        }
 
-        return user;
+        return rows[0];
+ 
     } catch(error){
         throw error;
     }
@@ -59,20 +96,15 @@ export const getUserByEmail = async (email) => {
 
 
 export const editProfile = async (userId, editedUserData) => {
+    const {nickname, profileImage} = editedUserData
     try{
-        const users = await getAllUsers();
-        const userIndex = users.findIndex(user => user.userId === userId);
-
-        if (userIndex === -1) {
-            throw new Error('해당 ID의 사용자 정보를 찾을 수 없습니다.');
-        }
-
-        users[userIndex] = {
-            ...users[userIndex],
-            ...editedUserData,
-        };
-
-        await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf-8'); 
+        await pool.query(`
+            UPDATE user
+            SET nickname = ?, profile_image = ?
+            WHERE user_id = ?
+            `,
+            [nickname, profileImage, userId]
+        );
 
     } catch(error){
         throw error;
@@ -82,16 +114,14 @@ export const editProfile = async (userId, editedUserData) => {
 
 export const changePassword = async (userId, newPassword) => {
     try{
-        const users = await getAllUsers();
-        const userIndex = users.findIndex(user => user.userId === userId);
-
-        users[userIndex] = {
-            ...users[userIndex],
-            password: newPassword,
-        }
-
-        await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf-8');
-
+        await pool.query(`
+            UPDATE user
+            SET password = ?
+            WHERE user_id = ?
+            `,
+            [newPassword, userId]
+        );
+        
     }catch(error){
         throw error;
     }
@@ -99,13 +129,22 @@ export const changePassword = async (userId, newPassword) => {
 
 export const getProfileImageNameByUserId = async (userId) => {
     try{
+        const [rows] = await pool.query(`
+            SELECT 
+                profile_image AS profileImage
+            FROM user
+            WHERE user_id = ?
+            `,
+            [userId]
+        );
+
         const user = await getUserById(userId);
 
-        if(!user){
+        if (rows.length === 0) {
             return false;
         }
 
-        return user.profileImage;
+        return rows[0].profileImage;
         
     }catch(error){
         throw error;
