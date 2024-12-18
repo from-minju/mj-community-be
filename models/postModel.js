@@ -27,7 +27,7 @@ export const getAllPosts = async() => {
 };
 
 
-export const getPostById = async(postId) => {
+export const getPostByPostId = async(postId) => {
     try{
         const postsData = await getAllPosts();
         const postData = postsData.find((post) => post.postId === postId);
