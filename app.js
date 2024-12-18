@@ -4,9 +4,11 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
-const port = process.env.PORT || 3000;
-const app = express();
 dotenv.config();
+
+const port = process.env.PORT;
+const host = process.env.HOST;
+const app = express();
 
 import authRouter from './routes/authRoutes.js';
 import postsRouter from './routes/postsRoutes.js';
@@ -17,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(
-    cors({origin: "http://localhost:8000",
+    cors({origin: `http://${host}:8000`,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: 'Content-Type, Authorization',
         credentials: true, // 자격 증명(쿠키, 인증 정보 등)을 허용
