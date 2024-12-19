@@ -1,6 +1,9 @@
 node_modules
+
+.env
+
 uploads/*
 !/uploads/default/
-gitignore
+
 test.json
 test.js
