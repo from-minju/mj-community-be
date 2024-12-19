@@ -13,6 +13,7 @@ const app = express();
 import authRouter from './routes/authRoutes.js';
 import postsRouter from './routes/postsRoutes.js';
 import usersRouter from './routes/usersRoutes.js';
+import { logRequest } from './middleware/log.js';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -40,6 +41,9 @@ app.use(
 );
 
 app.use('/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
+
+//로그 미들웨어 적용
+app.use(logRequest);
 
 app.use('/auth', authRouter);
 app.use('/posts', postsRouter);
