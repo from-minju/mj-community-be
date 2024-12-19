@@ -14,10 +14,16 @@ import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
 
 
-function getCurrentDate() {
-    let today = new Date();
-    today.setHours(today.getHours() + 9); // 미국시간 기준이니까 9를 더해주면 대한민국 시간됨
-    return today.toISOString().replace("T", " ").substring(0, 19); // 문자열로 바꿔주고 T를 빈칸으로 바꿔주면 yyyy-mm-dd hh:mm:ss 이런 형식 나옴
+// function getCurrentDate() {
+//     let today = new Date();
+//     today.setHours(today.getHours() + 9); // 미국시간 기준이니까 9를 더해주면 대한민국 시간됨
+//     return today.toISOString().replace("T", " ").substring(0, 19); // 문자열로 바꿔주고 T를 빈칸으로 바꿔주면 yyyy-mm-dd hh:mm:ss 이런 형식 나옴
+// }
+
+function formatToKoreanTime(utcTime) {
+    const date = new Date(utcTime); // UTC 시간 생성
+    date.setHours(date.getHours() + 9); // 한국 표준시 (KST)로 변환
+    return date.toISOString().replace("T", " ").substring(0, 19); // 형식 변경
 }
 
 
@@ -31,10 +37,14 @@ function getCurrentDate() {
 export const getPostsController =async(req, res) => {
     try{
         const posts = await getAllPosts();
+        const formattedPosts = posts.map(post => ({
+            ...post,
+            createdAt: formatToKoreanTime(post.createdAt),
+        }));
 
         res.status(200).json({
             message: "게시물 목록 조회 성공",
-            data: posts
+            data: formattedPosts
         });
 
     } catch(error){
@@ -72,7 +82,7 @@ export const getPostController = async(req, res) => {
             title: post.title,
             content: post.content,
             postImage: post.postImage,
-            createdAt: post.createdAt, //TODO2: 시간 변환 
+            createdAt: formatToKoreanTime(post.createdAt),
             likes: post.likes, 
             comments: post.comments,
             views: post.views,
@@ -200,10 +210,14 @@ export const getCommentsController = async(req, res) => {
 
     try{
         const comments = await getCommentsByPostId(postId);
+        const formattedComments = comments.map(comment => ({
+            ...comment,
+            createdAt: formatToKoreanTime(comment.createdAt),
+        }));
 
         res.status(200).json({
             message: "댓글 목록 조회 성공",
-            data: comments
+            data: formattedComments
         });
 
     }catch(error){
