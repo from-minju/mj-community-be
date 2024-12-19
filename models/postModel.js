@@ -31,6 +31,7 @@ export const getAllPosts = async () => {
                 u.profile_image AS profileImage
             FROM post p
             JOIN user u ON p.user_id = u.user_id
+            ORDER BY p.created_at DESC
         `);
         return posts; // 결과는 카멜케이스로 매핑된 값으로 반환됩니다.
     } catch (error) {
@@ -65,9 +66,6 @@ export const getPostByPostId = async(postId) => {
             throw new Error('해당 ID의 게시물이 존재하지 않습니다.');
         }
 
-        // 디버깅용
-        console.log(posts[0]);
-
         return posts[0];
 
     }catch(error){
@@ -99,14 +97,12 @@ export const createPost = async(newPost) => {
     const {postId, title, content, postImage, postAuthorId} = newPost
 
     try{
-        const result = await pool.query(`
+        await pool.query(`
             INSERT INTO post (post_id, title, content, post_image, likes, views, comments, user_id)
             VALUES (?, ?, ?, ?, 0, 0, 0, ?)
             `, 
             [postId, title, content, postImage, postAuthorId]
         );
-
-        return result[0].post_id;
 
     }catch(error){
         throw error;
@@ -203,6 +199,7 @@ export const getCommentsByPostId = async(postId) => {
             FROM comment c
             JOIN user u ON c.user_id = u.user_id
             WHERE c.post_id = ?
+            ORDER BY c.created_at DESC
             `, 
             [postId]
         );
@@ -256,7 +253,7 @@ export const editComment = async (postId, commentId, editedCommentData) => {
         await pool.query(`
             UPDATE comment
             SET content = ?
-            WHERE comment_id = ? ? AND post_id = ?
+            WHERE comment_id = ? AND post_id = ?
             `,
             [content, commentId, postId]
         );

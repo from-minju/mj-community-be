@@ -77,13 +77,13 @@ export const getPostController = async(req, res) => {
             comments: post.comments,
             views: post.views,
             isLiked: isLiked,
-            postAuthorId: post.userId,
+            postAuthorId: post.postAuthorId,
             nickname: post.nickname,
             profileImage: post.profileImage
         }
 
-        //디버깅용
-        console.log(postData);
+        // LOG
+        console.log("<postData> : ", postData);
 
         res.status(200).json({
             message: "게시물 상세 조회 성공",
@@ -99,11 +99,12 @@ export const getPostController = async(req, res) => {
 // POST 게시물 작성
 export const createPostController = async(req, res) => {
     const {title, content} = req.body;
+    const postId = v4();
     const userId = req.session.userId;
     const postImage = req.file ? `${req.file.filename}` : null;
 
     const newPost = {
-        postId: v4(),
+        postId: postId,
         title: title,
         content: content,
         postImage: postImage,
@@ -111,7 +112,7 @@ export const createPostController = async(req, res) => {
     };
 
     try{
-        const postId = await createPost(newPost);
+        await createPost(newPost);
 
         res.status(201).json({
             message: "게시물 작성 성공", 
