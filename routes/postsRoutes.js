@@ -2,8 +2,7 @@ import express from 'express';
 import {
     getPostsController, getPostController, createPostController, editPostController, deletePostController, 
     getCommentsController, createCommentController, editCommentController, deleteCommentController,
-    likePostController, unlikePostController,
-    getLikesController
+    likePostController, unlikePostController
 } from '../controllers/postsController.js';
 import { upload } from '../middleware/multer.js';
 
@@ -23,7 +22,6 @@ router.put('/:postId/comments/:commentId', editCommentController);
 router.delete('/:postId/comments/:commentId', deleteCommentController);
 
 // 좋아요 라우터 연결
-router.get('/:postId/likes', getLikesController);
 router.post('/:postId/likes', likePostController);
 router.delete('/:postId/likes', unlikePostController);
 

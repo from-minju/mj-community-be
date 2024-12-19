@@ -3,12 +3,12 @@ import path from 'path';
 import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
     getPostImageNameByPostId,
-    getLikesByPostId,
     likePost,
-    getAllLikesByPostId,
     unlikePost,
     deleteLikesByPostId,
-    increaseViewCount,} from "../models/postModel.js";
+    increaseViewCount,
+    getLikesByPostId,
+    checkIfUserLikedPost,} from "../models/postModel.js";
 import { upload } from "../middleware/multer.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
@@ -31,9 +31,6 @@ function getCurrentDate() {
 export const getPostsController =async(req, res) => {
     try{
         const posts = await getAllPosts();
-
-        // 디버깅용
-        console.log(posts);
 
         res.status(200).json({
             message: "게시물 목록 조회 성공",
@@ -68,18 +65,21 @@ export const getPostController = async(req, res) => {
     
     try{
         const post = await getPostByPostId(postId);
+        const isLiked = await checkIfUserLikedPost(postId, userId);
+
         const postData = {
-            postId: post.post_id,
+            postId: post.postId,
             title: post.title,
             content: post.content,
-            postImage: post.post_image,
-            createdAt: post.created_at, //TODO2: 시간 변환 
+            postImage: post.postImage,
+            createdAt: post.createdAt, //TODO2: 시간 변환 
             likes: post.likes, 
             comments: post.comments,
             views: post.views,
-            postAuthorId: post.user_id,
+            isLiked: isLiked,
+            postAuthorId: post.userId,
             nickname: post.nickname,
-            profileImage: post.profile_image
+            profileImage: post.profileImage
         }
 
         //디버깅용
@@ -107,8 +107,6 @@ export const createPostController = async(req, res) => {
         title: title,
         content: content,
         postImage: postImage,
-        createdAt: getCurrentDate(), 
-        views: 0,
         postAuthorId: userId
     };
 
@@ -125,44 +123,44 @@ export const createPostController = async(req, res) => {
     }
 };
 
-
+// TODO
 export const editPostController = async(req, res) => {
-    upload.single('postImage')(req, res, async(err) => {
-        if(err){
-            console.error("Multer error: ", err);
-            return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
-        }
+    // upload.single('postImage')(req, res, async(err) => {
+    //     if(err){
+    //         console.error("Multer error: ", err);
+    //         return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
+    //     }
 
-        const postId = req.params.postId;
-        const {title, content} = req.body;
-        const postImage = req.file ? `${req.file.filename}` : null;
+    //     const postId = req.params.postId;
+    //     const {title, content} = req.body;
+    //     const postImage = req.file ? `${req.file.filename}` : null;
 
-        const editedPostData = {
-            title: title,
-            content: content,
-        }
+    //     const editedPostData = {
+    //         title: title,
+    //         content: content,
+    //     }
 
-        if(req.file){
-            editedPostData.postImage = postImage;
+    //     if(req.file){
+    //         editedPostData.postImage = postImage;
 
-            //uploads의 기존 이미지 삭제하기
-            const previousImageName = await getPostImageNameByPostId(postId);
-            if(previousImageName){
-                const filePath = getFilePath(previousImageName);
-                deleteImage(filePath);
-            }
-        }
+    //         //uploads의 기존 이미지 삭제하기
+    //         const previousImageName = await getPostImageNameByPostId(postId);
+    //         if(previousImageName){
+    //             const filePath = getFilePath(previousImageName);
+    //             deleteImage(filePath);
+    //         }
+    //     }
 
-        try{
-            await editPost(postId, editedPostData);
-            res.status(200).json({
-                message: "게시물 수정 성공",
-            });
-        }catch(error){
-            console.log(error);
-            res.status(500).json({message: "서버 에러 발생"});
-        }
-    });
+    //     try{
+    //         await editPost(postId, editedPostData);
+    //         res.status(200).json({
+    //             message: "게시물 수정 성공",
+    //         });
+    //     }catch(error){
+    //         console.log(error);
+    //         res.status(500).json({message: "서버 에러 발생"});
+    //     }
+    // });
 
 }
 
@@ -198,30 +196,13 @@ export const deletePostController = async(req, res) => {
 
 export const getCommentsController = async(req, res) => {
     const postId = req.params.postId;
-    let commentsData = [];
 
     try{
         const comments = await getCommentsByPostId(postId);
 
-        for(const comment of comments){
-
-            const commentAuthor = await getUserById(comment.commentAuthorId);
-
-            const commentData = {
-                commentId: comment.commentId,
-                content: comment.content,
-                createdAt: comment.createdAt,
-                commentAuthorId: comment.commentAuthorId,
-                nickname: commentAuthor.nickname,
-                profileImage: commentAuthor.profileImage
-            }
-            
-            commentsData.push(commentData);
-        }
-
         res.status(200).json({
             message: "댓글 목록 조회 성공",
-            data: commentsData
+            data: comments
         });
 
     }catch(error){
@@ -240,12 +221,11 @@ export const createCommentController = async(req, res) => {
     }
 
     try{
-        
         const newCommentData = {
             commentId: v4(),
             commentAuthorId: userId,
             content: content,
-            createdAt: getCurrentDate()
+            // createdAt: getCurrentDate()
         };
 
         await createComment(postId, newCommentData);
@@ -259,8 +239,6 @@ export const createCommentController = async(req, res) => {
 };
 
 export const editCommentController = async(req, res) => {
-    //TODO: 인증/인가 확인후 로직 실행하기.
-    
     try{
         const {postId, commentId} = req.params;
         const {content} = req.body;
@@ -297,35 +275,8 @@ export const deleteCommentController = async(req, res) => {
  * --------------------------------------------------
  */
 
-export const getLikesController = async(req, res) => {
-
-    const postId = req.params.postId;
-    const userId = req.session.userId;
-
-    if(!userId){
-        return res.status(401).json({ message: "로그인 필요" });
-    }
-
-    try{
-        const postLikes = await getAllLikesByPostId(postId);
-        let isLiked = postLikes.some(tempUserId => tempUserId === userId);
-
-        res.status(200).json({
-            message: "좋아요 조회 성공",
-            data: {
-                isLiked: isLiked,
-                likesCnt: postLikes.length,
-            }
-        })
-
-    }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
-    }
-
-}
-
 export const likePostController = async(req, res) => {
+    const likeId = v4();
     const postId = req.params.postId;
     const userId = req.session.userId;
 
@@ -334,18 +285,16 @@ export const likePostController = async(req, res) => {
     }
 
     try{
-        const postLikes = await getAllLikesByPostId(postId);
-        let isLiked = postLikes.some(tempUserId => tempUserId === userId);
+        await likePost(likeId, postId, userId);
 
-        // 이미 좋아요를 누른경우
-        if(isLiked){
-            res.status(409).json({ message: "이미 좋아요를 눌렀습니다." });
-            return;
-        }
+        const likes = await getLikesByPostId(postId);
 
-        // 좋아요 누르기
-        await likePost(postId, userId);
-        res.status(200).json({ message: "좋아요 성공" });
+        return res.status(200).json({ 
+            message: "좋아요 성공",
+            data: {
+                likesCnt: likes
+            }
+        });
 
     }catch(error){
         console.log(error);
@@ -362,15 +311,16 @@ export const unlikePostController = async(req, res) => {
     }
 
     try{
-        const postLikes = await getAllLikesByPostId(postId);
-        let isLiked = postLikes.some(tempUserId => tempUserId === userId);
-
-        // 이미 좋아요가 눌러져 있지 않은경우
-        if(!isLiked) return;
-
-        // 좋아요 취소
         await unlikePost(postId, userId);
-        res.status(200).json({ message: "좋아요 취소 성공" });
+
+        const likes = await getLikesByPostId(postId);
+
+        return res.status(200).json({ 
+            message: "좋아요 취소 성공",
+            data: {
+                likesCnt: likes
+            }
+        });
 
     }catch(error){
         console.log(error);

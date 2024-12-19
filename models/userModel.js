@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { pool } from '../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,10 +47,10 @@ export const getUserById = async (userId) => {
     try{
         const [rows] = await pool.query(`
             SELECT 
-                user_id AS userId
-                email
-                password
-                nickname
+                user_id AS userId,
+                email,
+                password,
+                nickname,
                 profile_image AS profileImage
             FROM user
             WHERE user_id = ?
@@ -72,10 +73,10 @@ export const getUserByEmail = async (email) => {
     try{
         const [rows] = await pool.query(`
             SELECT 
-                user_id AS userId
-                email
-                password
-                nickname
+                user_id AS userId,
+                email,
+                password,
+                nickname,
                 profile_image AS profileImage
             FROM user
             WHERE email = ?
@@ -84,7 +85,7 @@ export const getUserByEmail = async (email) => {
         );
 
         if (rows.length === 0) {
-            throw new Error('해당 ID의 사용자가 존재하지 않습니다.');
+            return false;
         }
 
         return rows[0];

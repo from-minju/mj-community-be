@@ -58,11 +58,11 @@ export const signupController = async(req, res) => {
         email: email.trim(),
         password: hashedPassword,
         nickname: nickname.trim(),
-        profileImage: profileImage, // 저장된 이미지 경로
+        profileImage: profileImage, 
     };
 
     try {
-        await createUser(newUser); // 데이터베이스에 사용자 추가
+        await createUser(newUser); 
         res.status(201).json({ message: '회원가입 성공' });
     } catch (error) {
         console.error(error);

@@ -19,7 +19,7 @@ const likesFilePath = path.join(__dirname, '../data/likes.json');
 
 export const getAllPosts = async () => {
     try {
-        const [rows] = await pool.query(`
+        const [posts] = await pool.query(`
             SELECT 
                 p.post_id AS postId, 
                 p.title,
@@ -32,7 +32,7 @@ export const getAllPosts = async () => {
             FROM post p
             JOIN user u ON p.user_id = u.user_id
         `);
-        return rows; // 결과는 카멜케이스로 매핑된 값으로 반환됩니다.
+        return posts; // 결과는 카멜케이스로 매핑된 값으로 반환됩니다.
     } catch (error) {
         throw error;
     }
@@ -41,7 +41,7 @@ export const getAllPosts = async () => {
 
 export const getPostByPostId = async(postId) => {
     try{
-        const [rows] = await pool.query(`
+        const [posts] = await pool.query(`
             SELECT 
                 p.post_id AS postId, 
                 p.title, 
@@ -61,14 +61,14 @@ export const getPostByPostId = async(postId) => {
             [postId]
         );
 
-        if (rows.length === 0) {
+        if (posts.length === 0) {
             throw new Error('해당 ID의 게시물이 존재하지 않습니다.');
         }
 
         // 디버깅용
-        console.log(rows[0]);
+        console.log(posts[0]);
 
-        return rows[0];
+        return posts[0];
 
     }catch(error){
         throw error;
@@ -195,10 +195,10 @@ export const getCommentsByPostId = async(postId) => {
         const [rows] = await pool.query(`
             SELECT
                 c.comment_id AS commentId,
-                c.content
+                c.content,
                 c.created_at AS createdAt,
                 u.user_id AS commentAuthorId,
-                u.nickname
+                u.nickname,
                 u.profile_image AS profileImage
             FROM comment c
             JOIN user u ON c.user_id = u.user_id
@@ -312,10 +312,50 @@ export const deleteCommentsByPostId = async(postId) => {
  * --------------------------------------------------
  */
 
+// 현재 사용자가 특정게시물에 좋아요를 눌렀는지 확인하는 함수 (true, false)
+export const checkIfUserLikedPost = async(postId, userId) => {
+    try{
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM \`like\` 
+            WHERE post_id = ? AND user_id = ?
+        `, [postId, userId]);
+
+        if(rows.length > 0) {
+            // 좋아요를 눌렀음
+            return true;
+        }else{
+            // 좋아요를 누르지 않았음
+            return false;
+        }
+
+    } catch(error){
+        throw error;
+    }
+}
+
+// 특정게시물의 좋아요수를 리턴하는 함수
+export const getLikesByPostId = async(postId) => {
+    try{
+        const [rows] = await pool.query(`
+            SELECT likes
+            FROM post
+            WHERE post_id = ?
+            `,
+            [postId]
+        );        
+
+        return rows[0].likes;
+        
+    }catch(error){
+        throw error;
+    }
+}
+
 export const likePost = async(likeId, postId, userId) => {
     try{
         await pool.query(`
-            INSERT INTO like (like_id, post_id, user_id)
+            INSERT INTO \`like\` (like_id, post_id, user_id)
             VALUES (?, ?, ?)
             `,
             [likeId, postId, userId]
@@ -337,7 +377,7 @@ export const likePost = async(likeId, postId, userId) => {
 export const unlikePost = async(postId, userId) => {
     try{
         await pool.query(`
-            DELETE FROM like
+            DELETE FROM \`like\`
             WHERE post_id = ? AND user_id = ?
             `,
             [postId, userId]
@@ -359,7 +399,7 @@ export const unlikePost = async(postId, userId) => {
 export const deleteLikesByPostId = async(postId) => {
     try{
         await pool.query(`
-            DELETE FROM like
+            DELETE FROM \`like\`
             WHERE post_id = ?
             `,
             [postId]
@@ -369,3 +409,5 @@ export const deleteLikesByPostId = async(postId) => {
         throw error;
     }
 }
+
+

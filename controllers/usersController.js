@@ -1,7 +1,7 @@
 import multer from "multer";
 import bcrypt from 'bcrypt';
 import path from "path";
-import { editProfile, getUserById, changePassword, getAllUsers, getProfileImageNameByUserId } from "../models/userModel.js";
+import { editProfile, getUserById, changePassword, getProfileImageNameByUserId } from "../models/userModel.js";
 import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
 const saltRounds = 10;
@@ -149,6 +149,7 @@ export const uploadProfileImageController = (req, res) => {
 
 }
 
+// TODO 회원탈퇴
 export const deleteAccountController = async(req, res) => {
     const userId = req.session.userId;
 
