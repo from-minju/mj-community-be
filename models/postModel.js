@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 } from 'uuid';
 import { pool } from '../config/db.js';
+import { deleteImage, getFilePath } from '../utils/fileUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -143,6 +144,45 @@ export const deletePost = async (postId) => {
     }
 };
 
+export const getPostImageNamesArrayByUserId = async(userId) => {
+    try{
+        const [rows] = await pool.query(`
+            SELECT post_image AS postImage
+            FROM post
+            WHERE user_id = ?
+            `,
+            [userId]
+        );
+
+        if (rows.length === 0) return [];
+
+        return rows;
+
+    }catch(error){
+        throw error;
+    }
+}
+
+export const deletePostsByUserId = async (userId) => {
+    try{
+        const postImageNames = await getPostImageNamesArrayByUserId(userId);
+
+        for (const imageNameObj of postImageNames) {
+            deleteImage(getFilePath(imageNameObj.postImage));
+        }
+
+        await pool.query(`
+            DELETE FROM post
+            WHERE user_id = ?
+            `, 
+            [userId]
+        );
+
+    }catch(error){
+        throw error;
+    }
+}
+
 
 export const getPostImageNameByPostId = async(postId) => {
     try{
@@ -199,7 +239,7 @@ export const getCommentsByPostId = async(postId) => {
             FROM comment c
             JOIN user u ON c.user_id = u.user_id
             WHERE c.post_id = ?
-            ORDER BY c.created_at DESC
+            ORDER BY c.created_at ASC
             `, 
             [postId]
         );
@@ -222,26 +262,38 @@ export const createComment = async(postId, newCommentData) => {
     */
 
     const { commentId, content, commentAuthorId } = newCommentData;
+    const connection = await pool.getConnection();
 
-    try{
-        await pool.query(`
+    try {
+        await connection.beginTransaction();  // 트랜잭션 시작
+
+        // 댓글 삽입
+        const [result] = await connection.query(`
             INSERT INTO comment (comment_id, content, post_id, user_id)
             VALUES (?, ?, ?, ?)
             `,
             [commentId, content, postId, commentAuthorId]
         );
 
-        await pool.query(`
-            UPDATE post
-            SET comments = comments + 1
-            WHERE post_id = ?
-            `,
-            [postId]
-        );
+        // 삽입된 경우에만 post 테이블 업데이트
+        if (result.affectedRows > 0) {
+            await connection.query(`
+                UPDATE post
+                SET comments = comments + 1
+                WHERE post_id = ?
+                `,
+                [postId]
+            );
+        }
 
-    }catch(error){
+        await connection.commit();  // 모든 쿼리 성공 시 커밋
+    } catch (error) {
+        await connection.rollback();  // 실패 시 롤백
         throw error;
+    } finally {
+        connection.release();  // 커넥션 반환
     }
+
 };
 
 
@@ -265,27 +317,37 @@ export const editComment = async (postId, commentId, editedCommentData) => {
 
 
 export const deleteComment = async(postId, commentId) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();  // 트랜잭션 시작
 
-    try{
-        await pool.query(`
+        // 댓글 삭제
+        const [result] = await connection.query(`
             DELETE FROM comment
             WHERE comment_id = ? AND post_id = ?
             `,
             [commentId, postId]
         );
 
-        await pool.query(`
-            UPDATE post
-            SET comments = comments - 1
-            WHERE post_id = ?
-            `,
-            [postId]
-        );
+        // 댓글이 실제로 삭제된 경우에만 post 테이블 업데이트
+        if (result.affectedRows > 0) {
+            await connection.query(`
+                UPDATE post
+                SET comments = GREATEST(comments - 1, 0)
+                WHERE post_id = ?
+                `,
+                [postId]
+            );
+        }
 
-    } catch(error){
+        await connection.commit();  // 모든 작업 성공 시 커밋
+    } catch (error) {
+        await connection.rollback();  // 실패 시 롤백
         throw error;
+    } finally {
+        connection.release();  // 커넥션 반환
     }
-    
+
 };
 
 
@@ -299,6 +361,44 @@ export const deleteCommentsByPostId = async(postId) => {
         );
     }catch(error){
         throw error;
+    }
+}
+
+export const deleteCommentsByUserId = async(userId) => {
+    const connection = await pool.getConnection();
+    try{
+        await connection.beginTransaction(); // 트랜잭션 시작 
+
+        // post_id별 삭제할 댓글 수 계산
+        const [result] = await connection.query(`
+            SELECT post_id, COUNT(*) AS count
+            FROM comment
+            WHERE user_id = ?
+            GROUP BY post_id
+        `, [userId]);
+
+        // 댓글 삭제
+        await connection.query(`
+            DELETE FROM comment
+            WHERE user_id = ?
+        `, [userId]);
+
+        // post 테이블 업데이트
+        for (const row of result) {
+            await connection.query(`
+                UPDATE post
+                SET comments = GREATEST(comments - ?, 0)
+                WHERE post_id = ?
+            `, [row.count, row.post_id]);
+        }
+
+        await connection.commit();
+
+    } catch(error){
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
     }
 }
 
@@ -350,46 +450,69 @@ export const getLikesByPostId = async(postId) => {
 }
 
 export const likePost = async(likeId, postId, userId) => {
-    try{
-        await pool.query(`
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();  // 트랜잭션 시작
+
+        // 좋아요 삽입
+        const [result] = await connection.query(`
             INSERT INTO \`like\` (like_id, post_id, user_id)
             VALUES (?, ?, ?)
             `,
             [likeId, postId, userId]
         );
 
-        await pool.query(`
-            UPDATE post
-            SET likes = likes + 1
-            WHERE post_id = ?
-            `,
-            [postId]
-        );
+        // 삽입 성공 시에만 post 테이블 업데이트
+        if (result.affectedRows > 0) {
+            await connection.query(`
+                UPDATE post
+                SET likes = likes + 1
+                WHERE post_id = ?
+                `,
+                [postId]
+            );
+        }
 
-    }catch(error){
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
         throw error;
+    } finally {
+        connection.release();
     }
+
 };
 
 export const unlikePost = async(postId, userId) => {
-    try{
-        await pool.query(`
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();  // 트랜잭션 시작
+
+        // 좋아요 삭제
+        const [result] = await connection.query(`
             DELETE FROM \`like\`
             WHERE post_id = ? AND user_id = ?
             `,
             [postId, userId]
         );
 
-        await pool.query(`
-            UPDATE post
-            SET likes = likes - 1
-            WHERE post_id = ?
-            `,
-            [postId]
-        );
+        // 좋아요가 삭제된 경우에만 post 테이블 업데이트
+        if (result.affectedRows > 0) {
+            await connection.query(`
+                UPDATE post
+                SET likes = GREATEST(likes - 1, 0)
+                WHERE post_id = ?
+                `,
+                [postId]
+            );
+        }
 
-    }catch(error){
+        await connection.commit();  // 모든 쿼리 성공 시 커밋
+    } catch (error) {
+        await connection.rollback();  // 실패 시 롤백
         throw error;
+    } finally {
+        connection.release();  // 커넥션 반환
     }
 };
 
@@ -404,6 +527,43 @@ export const deleteLikesByPostId = async(postId) => {
 
     }catch(error){
         throw error;
+    }
+}
+
+export const deleteLikesByUserId = async(userId) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 삭제할 좋아요 수 계산
+        const [result] = await connection.query(`
+            SELECT post_id, COUNT(*) AS count
+            FROM \`like\`
+            WHERE user_id = ?
+            GROUP BY post_id
+        `, [userId]);
+
+        // 좋아요 삭제
+        await connection.query(`
+            DELETE FROM \`like\`
+            WHERE user_id = ?
+        `, [userId]);
+
+        // post 테이블 업데이트
+        for (const row of result) {
+            await connection.query(`
+                UPDATE post
+                SET likes = GREATEST(likes - ?, 0)
+                WHERE post_id = ?
+            `, [row.count, row.post_id]);
+        }
+
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
     }
 }
 

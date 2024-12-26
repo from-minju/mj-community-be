@@ -1,9 +1,10 @@
 import multer from "multer";
 import bcrypt from 'bcrypt';
 import path from "path";
-import { editProfile, getUserById, changePassword, getProfileImageNameByUserId } from "../models/userModel.js";
+import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId } from "../models/userModel.js";
 import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
+import { deleteCommentsByUserId, deleteLikesByUserId, deletePostsByUserId } from "../models/postModel.js";
 const saltRounds = 10;
 
 export const getUserProfileController = async (req, res) => {
@@ -157,19 +158,43 @@ export const deleteAccountController = async(req, res) => {
         return res.status(401).json({message: "로그인 필요"});
     }
 
-    // 좋아요 삭제
+    try{
+        // 좋아요 삭제
+        await deleteLikesByUserId(userId);
 
-    // 댓글 삭제
+        // 댓글 삭제
+        await deleteCommentsByUserId(userId);
 
-    // 게시물 삭제
+        // 게시물 삭제
+        await deletePostsByUserId(userId);
 
-    // 사용자 정보 삭제 (프로필 사진까지)
+        // 사용자 정보 삭제 (프로필 사진까지)
+        await deleteUserProfileByUserId(userId);
 
-    // 로그아웃(세션 삭제)
+        // 로그아웃(세션 쿠키 제거)
+        req.session.destroy((error) => {
+            if (error) {
+                console.log(error);
+                return res.status(500).json({ message: "서버 에러 발생" });
+            }
+            res.clearCookie('connect.sid');
+            res.status(200).json({ message: "회원탈퇴 성공" });
+        });
 
+        // req.session.destroy((error) => {
+        //     if(error){
+        //         throw error();
+        //     }
+        //     res.clearCookie('connect.sid'); // 세션 쿠키 제거
+        // })
 
-    res.status(200).json({ message: "회원탈퇴 성공" });
+        // // 응답 전송
+        // res.status(200).json({ message: "회원탈퇴 성공" });
 
-
+    } catch(error){
+        console.log(error);
+        res.status(500).json({message: "서버 에러 발생"});
+    }
+    
 }
 

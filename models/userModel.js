@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { pool } from '../config/db.js';
+import { deleteImage, getFilePath } from '../utils/fileUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -147,6 +148,24 @@ export const getProfileImageNameByUserId = async (userId) => {
 
         return rows[0].profileImage;
         
+    }catch(error){
+        throw error;
+    }
+}
+
+export const deleteUserProfileByUserId = async(userId) => {
+    try{
+        const profileImage = await getProfileImageNameByUserId(userId);
+
+        deleteImage(getFilePath(profileImage));
+
+        await pool.query(`
+            DELETE FROM user
+            WHERE user_id = ?
+            `, 
+            [userId]
+        );
+
     }catch(error){
         throw error;
     }
