@@ -1,7 +1,7 @@
 import multer from "multer";
 import bcrypt from 'bcrypt';
 import path from "path";
-import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId } from "../models/userModel.js";
+import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId, getUserByNickname, getUserByEmail } from "../models/userModel.js";
 import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
 import { deleteCommentsByUserId, deleteLikesByUserId, deletePostsByUserId } from "../models/postModel.js";
@@ -97,18 +97,17 @@ export const changePasswordController = async(req, res) => {
 
 
 export const checkEmailController = async(req, res) => {
-    const {email} = req.body;
+    const { email } = req.body;
 
     try{
-        const users = await getAllUsers();
-        const isDuplicate = users.some(user => user.email === email); // some() 배열 순회하며 조건에 맞는 요소가 하나라도 있으면 true 반환
+        const user = await getUserByEmail(email);
+        const isDuplicate = !!user;
 
         if(isDuplicate){
             res.status(200).json({ message: "이미 존재하는 이메일입니다.", isDuplicate: isDuplicate });
         }else{
             res.status(200).json({ message: "사용가능한 이메일입니다.", isDuplicate: isDuplicate });
         }
-        
 
     }catch(error){
         console.log(error);
@@ -120,8 +119,8 @@ export const checkNicknameController = async(req, res) => {
     const {nickname} = req.body;
 
     try{
-        const users = await getAllUsers();
-        let isDuplicate = users.some(user => user.nickname === nickname);
+        const user = await getUserByNickname(nickname);
+        let isDuplicate = !!user
 
         // 닉네임에 변경이 없다면, 중복되지 않았다고 처리함. 
         if(req.session.userId){
@@ -133,11 +132,12 @@ export const checkNicknameController = async(req, res) => {
         }
         
         // 응답
-        if(isDuplicate){
-            res.status(200).json({ message: "이미 존재하는 닉네임입니다.", isDuplicate: isDuplicate });
-        }else{
-            res.status(200).json({ message: "사용가능한 닉네임입니다.", isDuplicate: isDuplicate });
-        }
+        res.status(200).json({
+          message: isDuplicate
+            ? "이미 존재하는 닉네임입니다."
+            : "사용 가능한 닉네임입니다.",
+          isDuplicate,
+        });
 
     }catch(error){
         console.log(error);
@@ -150,7 +150,7 @@ export const uploadProfileImageController = (req, res) => {
 
 }
 
-// TODO 회원탈퇴
+
 export const deleteAccountController = async(req, res) => {
     const userId = req.session.userId;
 
@@ -180,16 +180,6 @@ export const deleteAccountController = async(req, res) => {
             res.clearCookie('connect.sid');
             res.status(200).json({ message: "회원탈퇴 성공" });
         });
-
-        // req.session.destroy((error) => {
-        //     if(error){
-        //         throw error();
-        //     }
-        //     res.clearCookie('connect.sid'); // 세션 쿠키 제거
-        // })
-
-        // // 응답 전송
-        // res.status(200).json({ message: "회원탈퇴 성공" });
 
     } catch(error){
         console.log(error);

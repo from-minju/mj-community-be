@@ -9,14 +9,6 @@ const __dirname = path.dirname(__filename);
 
 const usersFilePath = path.join(__dirname, '../data/users.json');
 
-// export const getAllUsers = async() => {
-//     try{
-//         const data = await fs.readFile(usersFilePath, 'utf-8');
-//         return JSON.parse(data);
-//     }catch(error){
-//         throw error;
-//     }
-// };
 
 export const createUser = async (newUser) => {
 
@@ -95,6 +87,32 @@ export const getUserByEmail = async (email) => {
         throw error;
     }
 };
+
+export const getUserByNickname = async (nickname) => {
+    try{
+        const [rows] = await pool.query(`
+            SELECT 
+                user_id AS userId,
+                email,
+                password,
+                nickname,
+                profile_image AS profileImage
+            FROM user
+            WHERE nickname = ?
+            `,
+            [nickname]
+        );
+
+        if (rows.length === 0) {
+            return false;
+        }
+
+        return rows[0];
+ 
+    } catch(error){
+        throw error;
+    }
+}
 
 
 export const editProfile = async (userId, editedUserData) => {
