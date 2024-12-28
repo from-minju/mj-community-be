@@ -1,4 +1,3 @@
-import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { pool } from '../config/db.js';
@@ -6,8 +5,6 @@ import { deleteImage, getFilePath } from '../utils/fileUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const usersFilePath = path.join(__dirname, '../data/users.json');
 
 
 export const createUser = async (newUser) => {
@@ -62,6 +59,7 @@ export const getUserById = async (userId) => {
     }
 };
 
+
 export const getUserByEmail = async (email) => {
     try{
         const [rows] = await pool.query(`
@@ -87,6 +85,7 @@ export const getUserByEmail = async (email) => {
         throw error;
     }
 };
+
 
 export const getUserByNickname = async (nickname) => {
     try{
@@ -147,6 +146,7 @@ export const changePassword = async (userId, newPassword) => {
     }
 };
 
+
 export const getProfileImageNameByUserId = async (userId) => {
     try{
         const [rows] = await pool.query(`
@@ -170,6 +170,7 @@ export const getProfileImageNameByUserId = async (userId) => {
         throw error;
     }
 }
+
 
 export const deleteUserProfileByUserId = async(userId) => {
     try{

@@ -3,9 +3,6 @@ import path from "path";
 import { DefaultProfileImageName } from "../config.js";
 
 export const deleteImage = (filePath) => {
-  // const defaultFilePath = path.join(process.cwd(), 'uploads', DefaultProfileImageName);
-  // if(filePath === defaultFilePath) return;
-  // if(!filePath) return;
 
   fs.unlink(filePath, (err) => {
     if (err) {

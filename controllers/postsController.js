@@ -1,5 +1,4 @@
 import { v4 } from "uuid";
-import path from 'path';
 import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
     getPostImageNameByPostId,
@@ -9,24 +8,14 @@ import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     increaseViewCount,
     getLikesByPostId,
     checkIfUserLikedPost,} from "../models/postModel.js";
-import { upload } from "../middleware/multer.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
-import { getUserById } from "../models/userModel.js";
-import { title } from "process";
 
-
-// function getCurrentDate() {
-//     let today = new Date();
-//     today.setHours(today.getHours() + 9); // 미국시간 기준이니까 9를 더해주면 대한민국 시간됨
-//     return today.toISOString().replace("T", " ").substring(0, 19); // 문자열로 바꿔주고 T를 빈칸으로 바꿔주면 yyyy-mm-dd hh:mm:ss 이런 형식 나옴
-// }
 
 function formatToKoreanTime(utcTime) {
     const date = new Date(utcTime); // UTC 시간 생성
     date.setHours(date.getHours() + 9); // 한국 표준시 (KST)로 변환
     return date.toISOString().replace("T", " ").substring(0, 19); // 형식 변경
 }
-
 
 
 /**
@@ -92,9 +81,6 @@ export const getPostController = async(req, res) => {
             nickname: post.nickname,
             profileImage: post.profileImage
         }
-
-        // LOG
-        console.log("<postData> : ", postData);
 
         res.status(200).json({
             message: "게시물 상세 조회 성공",
@@ -183,45 +169,6 @@ export const editPostController = async(req, res) => {
         console.log(error);
         res.status(500).json({ message: "서버 에러 발생" });
     }
-
-
-    // upload.single('postImage')(req, res, async(err) => {
-    //     if(err){
-    //         console.error("Multer error: ", err);
-    //         return res.status(400).json({ message: '파일 업로드 실패', error: err.message });
-    //     }
-
-    //     const postId = req.params.postId;
-    //     const {title, content} = req.body;
-    //     const postImage = req.file ? `${req.file.filename}` : null;
-
-    //     const editedPostData = {
-    //         title: title,
-    //         content: content,
-    //     }
-
-    //     if(req.file){
-    //         editedPostData.postImage = postImage;
-
-    //         //uploads의 기존 이미지 삭제하기
-    //         const previousImageName = await getPostImageNameByPostId(postId);
-    //         if(previousImageName){
-    //             const filePath = getFilePath(previousImageName);
-    //             deleteImage(filePath);
-    //         }
-    //     }
-
-    //     try{
-    //         await editPost(postId, editedPostData);
-    //         res.status(200).json({
-    //             message: "게시물 수정 성공",
-    //         });
-    //     }catch(error){
-    //         console.log(error);
-    //         res.status(500).json({message: "서버 에러 발생"});
-    //     }
-    // });
-
 }
 
 

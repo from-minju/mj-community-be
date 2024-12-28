@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 } from "uuid";
 import {createUser, getUserByEmail, getUserById} from "../models/userModel.js";
-import { upload } from "../middleware/multer.js";
 import { DefaultProfileImageName } from '../config.js';
 const saltRounds = 10;
 

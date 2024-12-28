@@ -1,4 +1,3 @@
-import multer from "multer";
 import bcrypt from 'bcrypt';
 import path from "path";
 import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId, getUserByNickname, getUserByEmail } from "../models/userModel.js";

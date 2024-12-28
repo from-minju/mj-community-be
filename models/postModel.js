@@ -1,16 +1,10 @@
-import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { v4 } from 'uuid';
 import { pool } from '../config/db.js';
 import { deleteImage, getFilePath } from '../utils/fileUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const postsFilePath = path.join(__dirname, '../data/posts.json');
-const commentsFilePath = path.join(__dirname, '../data/comments.json');
-const likesFilePath = path.join(__dirname, '../data/likes.json');
 
 
 /**
@@ -75,10 +69,6 @@ export const getPostByPostId = async(postId) => {
 };
 
 
-/**
- * 게시물 생성
- * @returns postId
- */
 export const createPost = async(newPost) => {
 
     /** newPost 형식
@@ -109,6 +99,7 @@ export const createPost = async(newPost) => {
         throw error;
     }
 };
+
 
 export const editPost = async (postId, editedPostData) => {
 
@@ -143,6 +134,7 @@ export const deletePost = async (postId) => {
     }
 };
 
+
 export const getPostImageNamesArrayByUserId = async(userId) => {
     try{
         const [rows] = await pool.query(`
@@ -161,6 +153,7 @@ export const getPostImageNamesArrayByUserId = async(userId) => {
         throw error;
     }
 }
+
 
 export const deletePostsByUserId = async (userId) => {
     try{
@@ -201,6 +194,7 @@ export const getPostImageNameByPostId = async(postId) => {
         throw error;
     }
 }
+
 
 export const increaseViewCount = async(postId) => {
 
@@ -363,6 +357,7 @@ export const deleteCommentsByPostId = async(postId) => {
     }
 }
 
+
 export const deleteCommentsByUserId = async(userId) => {
     const connection = await pool.getConnection();
     try{
@@ -400,7 +395,6 @@ export const deleteCommentsByUserId = async(userId) => {
         connection.release();
     }
 }
-
 
 
 /**
@@ -448,6 +442,7 @@ export const getLikesByPostId = async(postId) => {
     }
 }
 
+
 export const likePost = async(likeId, postId, userId) => {
     const connection = await pool.getConnection();
     try {
@@ -482,6 +477,7 @@ export const likePost = async(likeId, postId, userId) => {
 
 };
 
+
 export const unlikePost = async(postId, userId) => {
     const connection = await pool.getConnection();
     try {
@@ -515,6 +511,7 @@ export const unlikePost = async(postId, userId) => {
     }
 };
 
+
 export const deleteLikesByPostId = async(postId) => {
     try{
         await pool.query(`
@@ -528,6 +525,7 @@ export const deleteLikesByPostId = async(postId) => {
         throw error;
     }
 }
+
 
 export const deleteLikesByUserId = async(userId) => {
     const connection = await pool.getConnection();
