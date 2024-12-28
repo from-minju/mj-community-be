@@ -110,7 +110,6 @@ export const createPost = async(newPost) => {
     }
 };
 
-// TODO: 이미지 바뀌지 않은 경우에 대한 처리...등
 export const editPost = async (postId, editedPostData) => {
 
     const {title, content, postImage} = editedPostData;

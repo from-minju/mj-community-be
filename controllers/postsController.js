@@ -12,6 +12,7 @@ import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
 import { upload } from "../middleware/multer.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { getUserById } from "../models/userModel.js";
+import { title } from "process";
 
 
 // function getCurrentDate() {
@@ -134,8 +135,56 @@ export const createPostController = async(req, res) => {
     }
 };
 
-// TODO
+
 export const editPostController = async(req, res) => {
+
+    // const request_data = {
+    //     title: "",
+    //     content: "",
+    //     postImage: "",
+    //     isImageDeleted: true
+    // }
+
+    const postId = req.params.postId;
+    const { title, content, isImageDeleted } = req.body;
+
+    try{
+        const previousImageName = await getPostImageNameByPostId(postId);
+
+        const editedPostData = {
+            title: title,
+            content: content,
+            postImage: previousImageName,
+        }
+
+        // 이미지가 삭제된 경우
+        if (isImageDeleted === 'true') {
+            editedPostData.postImage = null;
+
+            if (previousImageName) {
+                const filePath = getFilePath(previousImageName);
+                deleteImage(filePath);
+            }
+        }
+
+        // 이미지가 새로 업로드된 경우
+        if (req.file) {
+            editedPostData.postImage = req.file.filename;
+        }
+
+        // 이미지가 변경되지 않은 경우는 기존 데이터 유지
+        await editPost(postId, editedPostData);
+
+        res.status(200).json({
+            message: "게시물 수정 성공",
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "서버 에러 발생" });
+    }
+
+
     // upload.single('postImage')(req, res, async(err) => {
     //     if(err){
     //         console.error("Multer error: ", err);

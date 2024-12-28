@@ -11,8 +11,8 @@ const router = express.Router();
 // 게시물 라우터 연결
 router.get('/', getPostsController);
 router.get('/:postId',getPostController);
-router.post('/', upload.single('postImage'),createPostController);
-router.put('/:postId', editPostController);
+router.post('/', upload.single('postImage'), createPostController);
+router.put('/:postId', upload.single('postImage'), editPostController);
 router.delete('/:postId', deletePostController);
 
 // 댓글 라우터 연결
