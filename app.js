@@ -40,17 +40,17 @@ app.use(
     })
 );
 
-app.use('/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
+app.use('/api/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
 
 //로그 미들웨어 적용
 app.use(logRequest);
 
-app.use('/auth', authRouter);
-app.use('/posts', postsRouter);
-app.use('/users', usersRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/posts', postsRouter);
+app.use('/api/users', usersRouter);
 
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.send('Express 시작!');
 });
 
