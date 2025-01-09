@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 dotenv.config();
 
@@ -40,7 +41,11 @@ app.use(
     })
 );
 
-app.use('/api/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
+
+app.use('/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
+
+app.use(helmet());
+
 
 //로그 미들웨어 적용
 app.use(logRequest);
