@@ -50,10 +50,6 @@ export const getPostController = async(req, res) => {
     const userId = req.session.userId; 
     const viewedPosts = req.cookies.viewedPosts ? JSON.parse(req.cookies.viewedPosts) : [];
 
-    if(!userId){
-        return res.status(401).json({message: "로그인 필요"});
-    }
-
     // 조회수 증가 조건
     if (!viewedPosts.includes(postId)) {
         await increaseViewCount(postId);
@@ -227,10 +223,6 @@ export const createCommentController = async(req, res) => {
     const postId = req.params.postId;
     const {content} = req.body;
 
-    if (!userId) {
-        return res.status(401).json({ message: "로그인 필요" });
-    }
-
     try{
         const newCommentData = {
             commentId: v4(),
@@ -291,10 +283,6 @@ export const likePostController = async(req, res) => {
     const postId = req.params.postId;
     const userId = req.session.userId;
 
-    if(!userId){
-        return res.status(401).json({ message: "로그인 필요" });
-    }
-
     try{
         await likePost(likeId, postId, userId);
 
@@ -316,10 +304,6 @@ export const likePostController = async(req, res) => {
 export const unlikePostController = async(req, res) => {
     const postId = req.params.postId;
     const userId = req.session.userId;
-
-    if(!userId){
-        return res.status(401).json({ message: "로그인 필요" });
-    }
 
     try{
         await unlikePost(postId, userId);

@@ -5,25 +5,26 @@ import {
     likePostController, unlikePostController
 } from '../controllers/postsController.js';
 import { upload } from '../middleware/multer.js';
+import { checkAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // 게시물 라우터 연결
 router.get('/', getPostsController);
-router.get('/:postId',getPostController);
-router.post('/', upload.single('postImage'), createPostController);
-router.put('/:postId', upload.single('postImage'), editPostController);
-router.delete('/:postId', deletePostController);
+router.get('/:postId', checkAuth, getPostController);
+router.post('/', checkAuth, upload.single('postImage'), createPostController);
+router.put('/:postId', checkAuth, upload.single('postImage'), editPostController);
+router.delete('/:postId', checkAuth, deletePostController);
 
 // 댓글 라우터 연결
-router.get('/:postId/comments', getCommentsController);
-router.post('/:postId/comments', createCommentController);
-router.put('/:postId/comments/:commentId', editCommentController);
-router.delete('/:postId/comments/:commentId', deleteCommentController);
+router.get('/:postId/comments', checkAuth, getCommentsController);
+router.post('/:postId/comments', checkAuth, createCommentController);
+router.put('/:postId/comments/:commentId', checkAuth, editCommentController);
+router.delete('/:postId/comments/:commentId', checkAuth, deleteCommentController);
 
 // 좋아요 라우터 연결
-router.post('/:postId/likes', likePostController);
-router.delete('/:postId/likes', unlikePostController);
+router.post('/:postId/likes', checkAuth, likePostController);
+router.delete('/:postId/likes', checkAuth, unlikePostController);
 
 
 export default router;

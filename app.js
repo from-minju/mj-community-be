@@ -44,7 +44,7 @@ app.use(
 
 app.use('/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
 
-app.use(helmet());
+app.use(helmet()); // 순서가 express.static 뒤 이어야 함.
 
 
 //로그 미들웨어 적용

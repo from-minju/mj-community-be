@@ -30,10 +30,6 @@ export const editProfileController = async(req, res) => {
     const userId = req.session.userId;
     const { isProfileImageChanged } = req.body;
 
-    if (!userId) {
-        return res.status(401).json({ message: "로그인 필요" });
-    }
-
     try{
         const previousImageName = await getProfileImageNameByUserId(userId);
         let profileImageName = previousImageName;
@@ -70,10 +66,6 @@ export const changePasswordController = async(req, res) => {
     const userId = req.session.userId;
     const newPassword = req.body.password;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    if(!userId){
-        return res.status(401).json({message: "로그인 필요"});
-    }
 
     try{
         const user = await getUserById(userId);
@@ -152,10 +144,6 @@ export const uploadProfileImageController = (req, res) => {
 
 export const deleteAccountController = async(req, res) => {
     const userId = req.session.userId;
-
-    if(!userId){
-        return res.status(401).json({message: "로그인 필요"});
-    }
 
     try{
         // 좋아요 삭제
