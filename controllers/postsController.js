@@ -96,6 +96,10 @@ export const createPostController = async(req, res) => {
     const userId = req.session.userId;
     const postImage = req.file ? `${req.file.filename}` : null;
 
+    if(!title || !content){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
+    }
+
     const newPost = {
         postId: postId,
         title: title,
@@ -129,6 +133,10 @@ export const editPostController = async(req, res) => {
 
     const postId = req.params.postId;
     const { title, content, isImageDeleted } = req.body;
+
+    if(!title || !content){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
+    }
 
     try{
         const previousImageName = await getPostImageNameByPostId(postId);
@@ -223,6 +231,10 @@ export const createCommentController = async(req, res) => {
     const postId = req.params.postId;
     const {content} = req.body;
 
+    if(!content.trim()){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
+    }
+
     try{
         const newCommentData = {
             commentId: v4(),
@@ -242,13 +254,17 @@ export const createCommentController = async(req, res) => {
 };
 
 export const editCommentController = async(req, res) => {
-    try{
-        const {postId, commentId} = req.params;
-        const {content} = req.body;
-        const editedCommentData = {
-            content: content,
-        };
+    const {postId, commentId} = req.params;
+    const { content } = req.body;
+    const editedCommentData = {
+        content: content,
+    };
 
+    if (!content.trim()) {
+        return res.status(400).json({ message: "유효하지 않은 요청입니다." });
+    }
+
+    try{
         await editComment(postId, commentId, editedCommentData);
         res.status(200).json({ message: "댓글 수정 성공" });
 
