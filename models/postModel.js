@@ -2,6 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { pool } from '../config/db.js';
 import { deleteImage, getFilePath } from '../utils/fileUtils.js';
+import { CustomError } from '../utils/customError.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,7 @@ export const getAllPosts = async () => {
         `);
         return posts; // 결과는 카멜케이스로 매핑된 값으로 반환됩니다.
     } catch (error) {
-        throw error;
+        throw new CustomError(500, "게시물 목록 조회 실패");
     }
 };
 
@@ -58,13 +59,13 @@ export const getPostByPostId = async(postId) => {
         );
 
         if (posts.length === 0) {
-            throw new Error('해당 ID의 게시물이 존재하지 않습니다.');
+            throw new CustomError(404, "해당 ID의 게시물이 존재하지 않습니다.");
         }
 
         return posts[0];
 
     }catch(error){
-        throw error;
+        throw error instanceof CustomError ? error : new CustomError(500, "게시물 조회 실패");
     }
 };
 
@@ -96,7 +97,7 @@ export const createPost = async(newPost) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물 작성 실패");
     }
 };
 
@@ -115,7 +116,7 @@ export const editPost = async (postId, editedPostData) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물 수정 실패");
     }
 };
 
@@ -130,11 +131,11 @@ export const deletePost = async (postId) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물 삭제 실패");
     }
 };
 
-
+// TODO: export할 필요없는거 같음. 
 export const getPostImageNamesArrayByUserId = async(userId) => {
     try{
         const [rows] = await pool.query(`
@@ -150,7 +151,7 @@ export const getPostImageNamesArrayByUserId = async(userId) => {
         return rows;
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "사용자가 업로드한 게시물 이미지들 이름 조회 실패");
     }
 }
 
@@ -171,7 +172,7 @@ export const deletePostsByUserId = async (userId) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "사용자가 작성한 게시물 삭제 실패");
     }
 }
 
@@ -191,7 +192,8 @@ export const getPostImageNameByPostId = async(postId) => {
         return rows[0].postImage;
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물 이미지 이름 조회 실패");
+
     }
 }
 
@@ -208,7 +210,7 @@ export const increaseViewCount = async(postId) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물 조회수 증가 실패");
     }
     
 }
@@ -240,7 +242,8 @@ export const getCommentsByPostId = async(postId) => {
         return rows;
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물에 대한 댓글목록 조회 실패");
+
     }
 };
 
@@ -282,7 +285,7 @@ export const createComment = async(postId, newCommentData) => {
         await connection.commit();  // 모든 쿼리 성공 시 커밋
     } catch (error) {
         await connection.rollback();  // 실패 시 롤백
-        throw error;
+        throw new CustomError(500, "댓글 등록 실패");
     } finally {
         connection.release();  // 커넥션 반환
     }
@@ -304,7 +307,7 @@ export const editComment = async (postId, commentId, editedCommentData) => {
         );
 
     } catch(error){
-        throw error;
+        throw new CustomError(500, "댓글 수정 실패");
     }
 };
 
@@ -336,7 +339,7 @@ export const deleteComment = async(postId, commentId) => {
         await connection.commit();  // 모든 작업 성공 시 커밋
     } catch (error) {
         await connection.rollback();  // 실패 시 롤백
-        throw error;
+        throw new CustomError(500, "댓글 삭제 실패");
     } finally {
         connection.release();  // 커넥션 반환
     }
@@ -353,7 +356,7 @@ export const deleteCommentsByPostId = async(postId) => {
             [postId]
         );
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물에 대한 댓글목록 삭제 실패");
     }
 }
 
@@ -390,7 +393,7 @@ export const deleteCommentsByUserId = async(userId) => {
 
     } catch(error){
         await connection.rollback();
-        throw error;
+        throw new CustomError(500, "사용자가 작성한 모든 댓글 삭제 실패");
     } finally {
         connection.release();
     }
@@ -420,7 +423,7 @@ export const checkIfUserLikedPost = async(postId, userId) => {
         }
 
     } catch(error){
-        throw error;
+        throw new CustomError(500, "사용자의 게시물에 대한 좋아요 여부 조회 실패");
     }
 }
 
@@ -438,7 +441,7 @@ export const getLikesByPostId = async(postId) => {
         return rows[0].likes;
         
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물에 대한 좋아요수 조회 실패");
     }
 }
 
@@ -470,7 +473,7 @@ export const likePost = async(likeId, postId, userId) => {
         await connection.commit();
     } catch (error) {
         await connection.rollback();
-        throw error;
+        throw new CustomError(500, "좋아요 실패");
     } finally {
         connection.release();
     }
@@ -505,7 +508,7 @@ export const unlikePost = async(postId, userId) => {
         await connection.commit();  // 모든 쿼리 성공 시 커밋
     } catch (error) {
         await connection.rollback();  // 실패 시 롤백
-        throw error;
+        throw new CustomError(500, "좋아요 취소 실패");
     } finally {
         connection.release();  // 커넥션 반환
     }
@@ -522,7 +525,7 @@ export const deleteLikesByPostId = async(postId) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "게시물에 대한 좋아요 목록 삭제 실패");
     }
 }
 
@@ -558,7 +561,7 @@ export const deleteLikesByUserId = async(userId) => {
         await connection.commit();
     } catch (error) {
         await connection.rollback();
-        throw error;
+        throw new CustomError(500, "사용자의 모든 좋아요 삭제 실패");
     } finally {
         connection.release();
     }

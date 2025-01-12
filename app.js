@@ -15,6 +15,7 @@ import authRouter from './routes/authRoutes.js';
 import postsRouter from './routes/postsRoutes.js';
 import usersRouter from './routes/usersRoutes.js';
 import { logRequest } from './middleware/log.js';
+import { errorHandler } from './middleware/errorMiddleware.js';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -54,6 +55,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/users', usersRouter);
 
+app.use(errorHandler);
 
 app.get('/api', (req, res) => {
     res.send('Express 시작!');
@@ -61,4 +63,11 @@ app.get('/api', (req, res) => {
 
 app.listen(port, ()=>{
     console.log(port, '번 포트에서 대기 중');
+});
+
+app.get('/error-test', (req, res, next) => {
+    // CustomError를 이용한 테스트
+    const error = new Error("테스트용 에러가 발생했습니다!");
+    error.status = 400; // Bad Request
+    next(error); // 에러 미들웨어로 전달
 });

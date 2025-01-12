@@ -6,7 +6,7 @@ import { validateEmail, validateNickname, validatePassword } from '../utils/vali
 const saltRounds = 10;
 
 
-export const checkAuthenticationController = async(req, res) => {
+export const checkAuthenticationController = async(req, res, next) => {
 
     if(!req.session.userId){
         return res.status(401).json({message: "로그인이 필요합니다."});
@@ -29,12 +29,11 @@ export const checkAuthenticationController = async(req, res) => {
             }
         });
     }catch(error){
-        console.error(error);
-        return res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 }
 
-export const logoutController = async(req, res) => {
+export const logoutController = async(req, res, next) => {
     req.session.destroy((error) => {
         if(error){
             return res.status(500).json({ message: '서버 에러 발생' });
@@ -45,7 +44,7 @@ export const logoutController = async(req, res) => {
 }
 
 
-export const signupController = async(req, res) => {
+export const signupController = async(req, res, next) => {
 
     const { email, password, nickname } = req.body;
     const profileImage = req.file ? `${req.file.filename}` : DefaultProfileImageName; // 업로드된 파일 경로
@@ -78,13 +77,12 @@ export const signupController = async(req, res) => {
         await createUser(newUser); 
         res.status(201).json({ message: '회원가입 성공' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: '서버 에러 발생'});
+        next(error);
     }
 
 }
 
-export const loginController = async(req, res) => {
+export const loginController = async(req, res, next) => {
 
     const {email, password} = req.body;
 
@@ -110,7 +108,6 @@ export const loginController = async(req, res) => {
         res.status(200).json({ message: "로그인 성공" });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 }

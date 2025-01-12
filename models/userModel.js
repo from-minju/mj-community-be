@@ -2,6 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { pool } from '../config/db.js';
 import { deleteImage, getFilePath } from '../utils/fileUtils.js';
+import { CustomError } from '../utils/customError.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,7 +29,7 @@ export const createUser = async (newUser) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "사용자 등록 실패");
     }
 };
 
@@ -55,7 +56,7 @@ export const getUserById = async (userId) => {
         return rows[0];
 
     } catch(error){
-        throw error;
+        throw new CustomError(500, "ID로 사용자 조회 실패");
     }
 };
 
@@ -82,7 +83,7 @@ export const getUserByEmail = async (email) => {
         return rows[0];
  
     } catch(error){
-        throw error;
+        throw new CustomError(500, "이메일로 사용자 조회 실패");
     }
 };
 
@@ -109,7 +110,7 @@ export const getUserByNickname = async (nickname) => {
         return rows[0];
  
     } catch(error){
-        throw error;
+        throw new CustomError(500, "닉네임으로 사용자 조회 실패");
     }
 }
 
@@ -126,7 +127,7 @@ export const editProfile = async (userId, editedUserData) => {
         );
 
     } catch(error){
-        throw error;
+        throw new CustomError(500, "사용자 정보 수정 실패");
     }
 };
 
@@ -142,7 +143,7 @@ export const changePassword = async (userId, newPassword) => {
         );
         
     }catch(error){
-        throw error;
+        throw new CustomError(500, "비밀번호 변경 실패");
     }
 };
 
@@ -167,7 +168,7 @@ export const getProfileImageNameByUserId = async (userId) => {
         return rows[0].profileImage;
         
     }catch(error){
-        throw error;
+        throw new CustomError(500, "사용자의 프로필사진 이름 조회 실패");
     }
 }
 
@@ -186,6 +187,6 @@ export const deleteUserProfileByUserId = async(userId) => {
         );
 
     }catch(error){
-        throw error;
+        throw new CustomError(500, "사용자 삭제 실패");
     }
 }

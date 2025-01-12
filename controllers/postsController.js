@@ -9,13 +9,7 @@ import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     getLikesByPostId,
     checkIfUserLikedPost,} from "../models/postModel.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
-
-
-function formatToKoreanTime(utcTime) {
-    const date = new Date(utcTime); // UTC 시간 생성
-    date.setHours(date.getHours() + 9); // 한국 표준시 (KST)로 변환
-    return date.toISOString().replace("T", " ").substring(0, 19); // 형식 변경
-}
+import { formatToKoreanTime } from "../utils/timeUtils.js";
 
 
 /**
@@ -24,7 +18,7 @@ function formatToKoreanTime(utcTime) {
  */
 
 // GET 게시물 목록
-export const getPostsController =async(req, res) => {
+export const getPostsController =async(req, res, next) => {
     try{
         const posts = await getAllPosts();
         const formattedPosts = posts.map(post => ({
@@ -38,13 +32,12 @@ export const getPostsController =async(req, res) => {
         });
 
     } catch(error){
-        console.log(error); //getAllPosts의 reject()인자 리턴됨
-        res.status(500).json({message: "게시물 목록 조회 실패"});
+        next(error); // 에러 미들웨어로 전달
     }
 };
 
 // GET 게시물 상세
-export const getPostController = async(req, res) => {
+export const getPostController = async(req, res, next) => {
 
     const postId = req.params.postId;
     const userId = req.session.userId; 
@@ -84,13 +77,12 @@ export const getPostController = async(req, res) => {
         });
 
     }catch(error){
-        console.log(error); // getPostById의 throw() 인자 리턴됨
-        res.status(404).json({message: "게시물 상세 조회 실패"});
+        next(error);
     } 
 };
 
 // POST 게시물 작성
-export const createPostController = async(req, res) => {
+export const createPostController = async(req, res, next) => {
     const {title, content} = req.body;
     const postId = v4();
     const userId = req.session.userId;
@@ -116,13 +108,12 @@ export const createPostController = async(req, res) => {
             data: {postId: postId}});
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
 
-export const editPostController = async(req, res) => {
+export const editPostController = async(req, res, next) => {
 
     // const request_data = {
     //     title: "",
@@ -170,13 +161,12 @@ export const editPostController = async(req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "서버 에러 발생" });
+        next(error);
     }
 }
 
 
-export const deletePostController = async(req, res) => {
+export const deletePostController = async(req, res, next) => {
     const postId = req.params.postId;
 
     try{
@@ -194,8 +184,7 @@ export const deletePostController = async(req, res) => {
         res.status(200).json({message: "게시물 삭제 성공"});
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
@@ -205,7 +194,7 @@ export const deletePostController = async(req, res) => {
  * --------------------------------------------------
  */
 
-export const getCommentsController = async(req, res) => {
+export const getCommentsController = async(req, res, next) => {
     const postId = req.params.postId;
 
     try{
@@ -221,12 +210,11 @@ export const getCommentsController = async(req, res) => {
         });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
-export const createCommentController = async(req, res) => {
+export const createCommentController = async(req, res, next) => {
     const userId = req.session.userId;
     const postId = req.params.postId;
     const {content} = req.body;
@@ -248,12 +236,11 @@ export const createCommentController = async(req, res) => {
         res.status(201).json({message: "댓글 작성 성공"});
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
-export const editCommentController = async(req, res) => {
+export const editCommentController = async(req, res, next) => {
     const {postId, commentId} = req.params;
     const { content } = req.body;
     const editedCommentData = {
@@ -269,12 +256,11 @@ export const editCommentController = async(req, res) => {
         res.status(200).json({ message: "댓글 수정 성공" });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
-export const deleteCommentController = async(req, res) => {
+export const deleteCommentController = async(req, res, next) => {
     try{
         const {postId, commentId} = req.params;
 
@@ -283,8 +269,7 @@ export const deleteCommentController = async(req, res) => {
         res.status(200).json({ message: "댓글 삭제 성공" });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
@@ -294,7 +279,7 @@ export const deleteCommentController = async(req, res) => {
  * --------------------------------------------------
  */
 
-export const likePostController = async(req, res) => {
+export const likePostController = async(req, res, next) => {
     const likeId = v4();
     const postId = req.params.postId;
     const userId = req.session.userId;
@@ -312,12 +297,11 @@ export const likePostController = async(req, res) => {
         });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
-export const unlikePostController = async(req, res) => {
+export const unlikePostController = async(req, res, next) => {
     const postId = req.params.postId;
     const userId = req.session.userId;
 
@@ -334,7 +318,6 @@ export const unlikePostController = async(req, res) => {
         });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };

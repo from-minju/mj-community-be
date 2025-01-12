@@ -4,9 +4,10 @@ import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, 
 import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
 import { deleteCommentsByUserId, deleteLikesByUserId, deletePostsByUserId } from "../models/postModel.js";
+import { validateNickname, validatePassword } from '../utils/validation.js';
 const saltRounds = 10;
 
-export const getUserProfileController = async (req, res) => {
+export const getUserProfileController = async (req, res, next) => {
     try{
         const userId = req.params.userId;
         const user = await getUserById(userId);
@@ -20,15 +21,18 @@ export const getUserProfileController = async (req, res) => {
             }
         });
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
 
-export const editProfileController = async(req, res) => {
+export const editProfileController = async(req, res, next) => {
     const userId = req.session.userId;
-    const { isProfileImageChanged } = req.body;
+    const { isProfileImageChanged, nickname } = req.body;
+
+    if(!validateNickname(nickname)){
+        return res.status(400).json({ message: "유효하지 않은 요청입니다." });
+    }
 
     try{
         const previousImageName = await getProfileImageNameByUserId(userId);
@@ -55,17 +59,20 @@ export const editProfileController = async(req, res) => {
         res.status(200).json({message: "사용자 정보 수정 성공"});
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 
 };
 
 
-export const changePasswordController = async(req, res) => {
+export const changePasswordController = async(req, res, next) => {
     const userId = req.session.userId;
     const newPassword = req.body.password;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    if(!validatePassword(newPassword)){
+        return res.status(400).json({ message: "유효하지 않은 요청입니다." });
+    }
 
     try{
         const user = await getUserById(userId);
@@ -81,13 +88,12 @@ export const changePasswordController = async(req, res) => {
         res.status(200).json({message: "비밀번호 변경 성공"});
 
     } catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 };
 
 
-export const checkEmailController = async(req, res) => {
+export const checkEmailController = async(req, res, next) => {
     const { email } = req.body;
 
     try{
@@ -101,12 +107,11 @@ export const checkEmailController = async(req, res) => {
         }
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 }
 
-export const checkNicknameController = async(req, res) => {
+export const checkNicknameController = async(req, res, next) => {
     const {nickname} = req.body;
 
     try{
@@ -131,18 +136,11 @@ export const checkNicknameController = async(req, res) => {
         });
 
     }catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
 }
 
-export const uploadProfileImageController = (req, res) => {
-    upload.single('profile')
-
-}
-
-
-export const deleteAccountController = async(req, res) => {
+export const deleteAccountController = async(req, res, next) => {
     const userId = req.session.userId;
 
     try{
@@ -169,9 +167,7 @@ export const deleteAccountController = async(req, res) => {
         });
 
     } catch(error){
-        console.log(error);
-        res.status(500).json({message: "서버 에러 발생"});
+        next(error);
     }
-    
 }
 
