@@ -159,11 +159,14 @@ export const getPostImageNamesArrayByUserId = async(userId) => {
 export const deletePostsByUserId = async (userId) => {
     try{
         const postImageNames = await getPostImageNamesArrayByUserId(userId);
-
-        for (const imageNameObj of postImageNames) {
-            deleteImage(getFilePath(imageNameObj.postImage));
+        
+        if(postImageNames.length > 0){
+            for (const imageNameObj of postImageNames) {
+                if(!imageNameObj.postImage){continue;}
+                deleteImage(getFilePath(imageNameObj.postImage));
+            }
         }
-
+        
         await pool.query(`
             DELETE FROM post
             WHERE user_id = ?
