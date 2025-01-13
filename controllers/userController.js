@@ -17,7 +17,7 @@ export const getUserProfileController = async (req, res, next) => {
             data: {
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage || DefaultProfileImageName
+                profileImage: user.profileImage 
             }
         });
     }catch(error){
@@ -40,10 +40,10 @@ export const editProfileController = async(req, res, next) => {
 
         // 프로필 이미지에 변경이 있었다면,
         if(isProfileImageChanged === 'true'){
-            profileImageName = req.file ? req.file.filename : DefaultProfileImageName;
+            profileImageName = req.file ? req.file.filename : null;
 
             // 기존 프로필 이미지 삭제
-            if(previousImageName !== DefaultProfileImageName){
+            if(!previousImageName){
                 const filePath = path.join(process.cwd(), 'uploads', previousImageName);
                 deleteImage(filePath);
             }
