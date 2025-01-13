@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import path from "path";
 import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId, getUserByNickname, getUserByEmail } from "../models/userModel.js";
-import { DefaultProfileImageName } from "../config.js";
 import { deleteImage } from "../utils/fileUtils.js";
 import { deleteCommentsByUserId, deleteLikesByUserId, deletePostsByUserId } from "../models/postModel.js";
 import { validateNickname, validatePassword } from '../utils/validation.js';
