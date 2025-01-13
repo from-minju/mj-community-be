@@ -3,9 +3,9 @@ import {
     getPostsController, getPostController, createPostController, editPostController, deletePostController, 
     getCommentsController, createCommentController, editCommentController, deleteCommentController,
     likePostController, unlikePostController
-} from '../controllers/postsController.js';
+} from '../controllers/postController.js';
 import { upload } from '../middleware/multer.js';
-import { checkAuth } from '../middleware/auth.js';
+import { checkAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 

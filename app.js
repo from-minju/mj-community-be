@@ -12,9 +12,9 @@ const host = process.env.HOST;
 const app = express();
 
 import authRouter from './routes/authRoutes.js';
-import postsRouter from './routes/postsRoutes.js';
-import usersRouter from './routes/usersRoutes.js';
-import { logRequest } from './middleware/log.js';
+import postsRouter from './routes/postRoutes.js';
+import usersRouter from './routes/userRoutes.js';
+import { logRequest } from './middleware/logMiddleware.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 
 app.use(express.json());

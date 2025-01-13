@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { pool } from '../config/db.js';
+import { pool } from '../config/dbConfig.js';
 import { deleteImage, getFilePath } from '../utils/fileUtils.js';
 import { CustomError } from '../utils/customError.js';
 
