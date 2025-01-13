@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 } from "uuid";
-import {createUser, getUserByEmail, getUserById} from "../models/userModel.js";
+import {createUser, getUserByEmail, getUserById, getUserByNickname} from "../models/userModel.js";
 import { DefaultProfileImageName } from '../config.js';
 import { validateEmail, validateNickname, validatePassword } from '../utils/validation.js';
 const saltRounds = 10;
