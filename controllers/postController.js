@@ -1,4 +1,4 @@
-import { v4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     getCommentsByPostId, createComment, editComment, deleteComment,deleteCommentsByPostId,
     getPostImageNameByPostId,
@@ -7,10 +7,13 @@ import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     deleteLikesByPostId,
     increaseViewCount,
     getLikesByPostId,
-    checkIfUserLikedPost,} from "../models/postModel.js";
+    checkIfUserLikedPost,
+    getCommentByCommentId,} from "../models/postModel.js";
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { formatToKoreanTime } from "../utils/timeUtils.js";
-
+import validator from 'validator';
+import { validatePostContent, validateTitle } from "../utils/validation.js";
+const { isUUID } = validator;
 
 /**
  * 게시물
@@ -42,19 +45,18 @@ export const getPostController = async(req, res, next) => {
     const postId = req.params.postId;
     const userId = req.session.userId; 
     const viewedPosts = req.cookies.viewedPosts ? JSON.parse(req.cookies.viewedPosts) : [];
-
-    // 조회수 증가 조건
-    if (!viewedPosts.includes(postId)) {
-        await increaseViewCount(postId);
-        viewedPosts.push(postId);
-
-        // 쿠키에 저장 (30분 유효)
-        res.cookie('viewedPosts', JSON.stringify(viewedPosts), { maxAge: 1800000, httpOnly: true });
-    }
     
+    if (!isUUID(postId)) {
+        return res.status(400).json({ message: "잘못된 요청입니다." });
+    }
+
     try{
         const post = await getPostByPostId(postId);
         const isLiked = await checkIfUserLikedPost(postId, userId);
+
+        if(!post){
+            return res.status(404).json({ message: "존재하지 않는 게시물입니다." });
+        }
 
         const postData = {
             postId: post.postId,
@@ -71,6 +73,15 @@ export const getPostController = async(req, res, next) => {
             profileImage: post.profileImage
         }
 
+        // 조회수 증가 조건
+        if (!viewedPosts.includes(postId)) {
+            await increaseViewCount(postId);
+            viewedPosts.push(postId);
+
+            // 쿠키에 저장 (30분 유효)
+            res.cookie('viewedPosts', JSON.stringify(viewedPosts), { maxAge: 1800000, httpOnly: true });
+        }
+
         res.status(200).json({
             message: "게시물 상세 조회 성공",
             data: postData
@@ -84,11 +95,15 @@ export const getPostController = async(req, res, next) => {
 // POST 게시물 작성
 export const createPostController = async(req, res, next) => {
     const {title, content} = req.body;
-    const postId = v4();
+    const postId = uuidV4();
     const userId = req.session.userId;
     const postImage = req.file ? `${req.file.filename}` : null;
 
     if(!title || !content){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
+    }
+
+    if(!validateTitle(title) || !validatePostContent(content)){
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
     }
 
@@ -123,13 +138,24 @@ export const editPostController = async(req, res, next) => {
     // }
 
     const postId = req.params.postId;
+    const userId = req.session.userId;
+
     const { title, content, isImageDeleted } = req.body;
 
     if(!title || !content){
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
     }
 
+    if(!validateTitle(title) || !validatePostContent(content)){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
+    }
+
     try{
+        const post = await getPostByPostId(postId);
+        if(post.postAuthorId !== userId){
+            return res.status(403).json({ message: "게시물 수정 권한이 없습니다." });
+        }
+
         const previousImageName = await getPostImageNameByPostId(postId);
 
         const editedPostData = {
@@ -168,8 +194,14 @@ export const editPostController = async(req, res, next) => {
 
 export const deletePostController = async(req, res, next) => {
     const postId = req.params.postId;
+    const userId = req.session.userId;
 
     try{
+        const post = await getPostByPostId(postId);
+        if(post.postAuthorId !== userId){
+            return res.status(403).json({ message: "게시물 삭제 권한이 없습니다." });
+        }
+
         //uploads의 이미지 삭제하기
         const previousPostImageName = await getPostImageNameByPostId(postId);
         if(previousPostImageName){
@@ -225,7 +257,7 @@ export const createCommentController = async(req, res, next) => {
 
     try{
         const newCommentData = {
-            commentId: v4(),
+            commentId: uuidV4(),
             commentAuthorId: userId,
             content: content,
             // createdAt: getCurrentDate()
@@ -241,6 +273,7 @@ export const createCommentController = async(req, res, next) => {
 };
 
 export const editCommentController = async(req, res, next) => {
+    const userId = req.session.userId;
     const {postId, commentId} = req.params;
     const { content } = req.body;
     const editedCommentData = {
@@ -252,6 +285,11 @@ export const editCommentController = async(req, res, next) => {
     }
 
     try{
+        const comment = await getCommentByCommentId(commentId);
+        if(comment.commentAuthorId !== userId){
+            return res.status(403).json({ message: "댓글 수정 권한이 없습니다." });
+        }
+
         await editComment(postId, commentId, editedCommentData);
         res.status(200).json({ message: "댓글 수정 성공" });
 
@@ -261,8 +299,14 @@ export const editCommentController = async(req, res, next) => {
 };
 
 export const deleteCommentController = async(req, res, next) => {
+    const userId = req.session.userId;
+    const {postId, commentId} = req.params;
+
     try{
-        const {postId, commentId} = req.params;
+        const comment = await getCommentByCommentId(commentId);
+        if(comment.commentAuthorId !== userId){
+            return res.status(403).json({ message: "댓글 삭제 권한이 없습니다." });
+        }
 
         await deleteComment(postId, commentId);
 
@@ -280,7 +324,7 @@ export const deleteCommentController = async(req, res, next) => {
  */
 
 export const likePostController = async(req, res, next) => {
-    const likeId = v4();
+    const likeId = uuidV4();
     const postId = req.params.postId;
     const userId = req.session.userId;
 

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { v4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 import {createUser, getUserByEmail, getUserById, getUserByNickname} from "../models/userModel.js";
 import { validateEmail, validateNickname, validatePassword } from '../utils/validation.js';
 const saltRounds = 10;
@@ -54,7 +54,7 @@ export const signupController = async(req, res, next) => {
     }
 
     const newUser = {
-        userId: v4(),
+        userId: uuidV4(),
         email: email.trim(),
         password: hashedPassword,
         nickname: nickname.trim(),
@@ -85,7 +85,7 @@ export const loginController = async(req, res, next) => {
 
     const {email, password} = req.body;
 
-    if(!email || !password){
+    if(!email || !password || !validateEmail(email) || !validatePassword(password)){
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
     }
 
