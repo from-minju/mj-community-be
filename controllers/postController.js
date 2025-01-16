@@ -12,7 +12,7 @@ import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
 import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { formatToKoreanTime } from "../utils/timeUtils.js";
 import validator from 'validator';
-import { validatePostContent, validateTitle } from "../utils/validation.js";
+import { validateComment, validatePostContent, validateTitle } from "../utils/validation.js";
 const { isUUID } = validator;
 
 /**
@@ -255,6 +255,10 @@ export const createCommentController = async(req, res, next) => {
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
     }
 
+    if(!validateComment(content)){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
+    }
+
     try{
         const newCommentData = {
             commentId: uuidV4(),
@@ -282,6 +286,10 @@ export const editCommentController = async(req, res, next) => {
 
     if (!content.trim()) {
         return res.status(400).json({ message: "유효하지 않은 요청입니다." });
+    }
+
+    if(!validateComment(content)){
+        return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
     }
 
     try{

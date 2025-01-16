@@ -2,8 +2,18 @@ const TITLE_MAX = 26;
 const CONTENT_MAX = 500;
 const COMMENT_MAX = 300;
 
+const getLength = (value) => {
+  // 줄바꿈 통일
+  const normalizedContent = value.trim().replace(/\r\n/g, '\n');
+  // 정확한 글자 수 계산
+  const characterCount = Array.from(normalizedContent).length;
+
+  return characterCount;
+}
+
 export const validateTitle = (titleValue) => {
-  if (titleValue.trim().length > TITLE_MAX) {
+  if (getLength(titleValue) > TITLE_MAX) {
+    console.log("title!!!")
     return false;
   } else {
     return true;
@@ -11,7 +21,8 @@ export const validateTitle = (titleValue) => {
 };
 
 export const validatePostContent = (contentValue) => {
-  if (contentValue.trim().length > CONTENT_MAX) {
+  if (getLength(contentValue) > CONTENT_MAX) {
+    console.log("content!!!")
     return false;
   } else {
     return true;
@@ -19,7 +30,7 @@ export const validatePostContent = (contentValue) => {
 };
 
 export const validateComment = (commentValue) => {
-  if(commentValue.trim().length > COMMENT_MAX){
+  if(getLength(commentValue) > COMMENT_MAX){
       return false;
   }else{
       return true;
