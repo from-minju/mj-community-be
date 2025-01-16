@@ -59,7 +59,7 @@ export const getPostByPostId = async(postId) => {
         );
 
         if (posts.length === 0) {
-            return [];
+            return false;
         }
 
         return posts[0];
@@ -135,8 +135,8 @@ export const deletePost = async (postId) => {
     }
 };
 
-// TODO: export할 필요없는거 같음. 
-export const getPostImageNamesArrayByUserId = async(userId) => {
+
+const getPostImageNamesArrayByUserId = async(userId) => {
     try{
         const [rows] = await pool.query(`
             SELECT post_image AS postImage

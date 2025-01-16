@@ -52,11 +52,11 @@ export const getPostController = async(req, res, next) => {
 
     try{
         const post = await getPostByPostId(postId);
-        const isLiked = await checkIfUserLikedPost(postId, userId);
-
         if(!post){
             return res.status(404).json({ message: "존재하지 않는 게시물입니다." });
         }
+
+        const isLiked = await checkIfUserLikedPost(postId, userId);
 
         const postData = {
             postId: post.postId,
@@ -152,6 +152,11 @@ export const editPostController = async(req, res, next) => {
 
     try{
         const post = await getPostByPostId(postId);
+
+        if(!post){
+            return res.status(404).json({ message: "존재하지 않는 게시물입니다." });
+        }
+
         if(post.postAuthorId !== userId){
             return res.status(403).json({ message: "게시물 수정 권한이 없습니다." });
         }
