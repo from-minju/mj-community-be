@@ -19,12 +19,12 @@ const storage = multer.diskStorage({
 
 // 파일 필터 설정
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png/;
+    const allowedTypes = /jpeg|jpg|png|gif/;
     const isValidType = allowedTypes.test(file.mimetype);
     if (isValidType) {
         cb(null, true);
     } else {
-        cb(new Error('허용되지 않는 파일 형식입니다. (.jpeg, .jpg, and .png만 가능)'));
+        cb(new Error('허용되지 않는 파일 형식입니다. (.jpeg, .jpg, and .png .gif만 가능)'));
     }
 };
 

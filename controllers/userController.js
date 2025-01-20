@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
-import path from "path";
 import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId, getUserByNickname, getUserByEmail } from "../models/userModel.js";
-import { deleteImage } from "../utils/fileUtils.js";
+import { deleteImage, getFilePath } from "../utils/fileUtils.js";
 import { deleteCommentsByUserId, deleteLikesByUserId, deletePostsByUserId } from "../models/postModel.js";
 import { validateNickname, validatePassword } from '../utils/validation.js';
 const saltRounds = 10;
@@ -42,9 +41,8 @@ export const editProfileController = async(req, res, next) => {
             profileImageName = req.file ? req.file.filename : null;
 
             // 기존 프로필 이미지 삭제
-            if(!previousImageName){
-                const filePath = path.join(process.cwd(), 'uploads', previousImageName);
-                deleteImage(filePath);
+            if(previousImageName){
+                deleteImage(getFilePath(previousImageName));
             }
         }
 

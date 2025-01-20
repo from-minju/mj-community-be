@@ -177,7 +177,9 @@ export const deleteUserProfileByUserId = async(userId) => {
     try{
         const profileImage = await getProfileImageNameByUserId(userId);
 
-        deleteImage(getFilePath(profileImage));
+        if(profileImage){
+            deleteImage(getFilePath(profileImage));
+        }
 
         await pool.query(`
             DELETE FROM user
