@@ -1,7 +1,7 @@
 import express from 'express';
-import { editProfileController, changePasswordController, getUserProfileController, checkEmailController, checkNicknameController, deleteAccountController } from '../controllers/usersController.js';
+import { editProfileController, changePasswordController, getUserProfileController, checkEmailController, checkNicknameController, deleteAccountController } from '../controllers/userController.js';
 import { upload } from '../middleware/multer.js';
-import { checkAuth } from '../middleware/auth.js';
+import { checkAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 

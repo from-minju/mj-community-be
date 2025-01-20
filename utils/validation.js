@@ -1,3 +1,42 @@
+const TITLE_MAX = 26;
+const CONTENT_MAX = 500;
+const COMMENT_MAX = 300;
+
+const getLength = (value) => {
+  // 줄바꿈 통일
+  const normalizedContent = value.trim().replace(/\r\n/g, '\n');
+  // 정확한 글자 수 계산
+  const characterCount = Array.from(normalizedContent).length;
+
+  return characterCount;
+}
+
+export const validateTitle = (titleValue) => {
+  if (getLength(titleValue) > TITLE_MAX) {
+    console.log("title!!!")
+    return false;
+  } else {
+    return true;
+  }
+};
+
+export const validatePostContent = (contentValue) => {
+  if (getLength(contentValue) > CONTENT_MAX) {
+    console.log("content!!!")
+    return false;
+  } else {
+    return true;
+  }
+};
+
+export const validateComment = (commentValue) => {
+  if(getLength(commentValue) > COMMENT_MAX){
+      return false;
+  }else{
+      return true;
+  }
+}
+
 export const validateEmail = (email) => {
   const emailValue = email.trim();
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

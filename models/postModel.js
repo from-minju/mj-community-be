@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { pool } from '../config/db.js';
+import { pool } from '../config/dbConfig.js';
 import { deleteImage, getFilePath } from '../utils/fileUtils.js';
 import { CustomError } from '../utils/customError.js';
 
@@ -59,7 +59,7 @@ export const getPostByPostId = async(postId) => {
         );
 
         if (posts.length === 0) {
-            throw new CustomError(404, "해당 ID의 게시물이 존재하지 않습니다.");
+            return false;
         }
 
         return posts[0];
@@ -135,8 +135,8 @@ export const deletePost = async (postId) => {
     }
 };
 
-// TODO: export할 필요없는거 같음. 
-export const getPostImageNamesArrayByUserId = async(userId) => {
+
+const getPostImageNamesArrayByUserId = async(userId) => {
     try{
         const [rows] = await pool.query(`
             SELECT post_image AS postImage
@@ -160,10 +160,13 @@ export const deletePostsByUserId = async (userId) => {
     try{
         const postImageNames = await getPostImageNamesArrayByUserId(userId);
 
-        for (const imageNameObj of postImageNames) {
-            deleteImage(getFilePath(imageNameObj.postImage));
+        if(postImageNames.length > 0){
+            for (const imageNameObj of postImageNames) {
+                if(!imageNameObj.postImage){continue;}
+                deleteImage(getFilePath(imageNameObj.postImage));
+            }
         }
-
+        
         await pool.query(`
             DELETE FROM post
             WHERE user_id = ?
@@ -220,6 +223,28 @@ export const increaseViewCount = async(postId) => {
  * 댓글
  * --------------------------------------------------
  */
+export const getCommentByCommentId = async(commentId) => {
+    try{
+        const [rows] = await pool.query(`
+            SELECT
+                comment_id AS commentId,
+                post_id AS postId,
+                user_id AS commentAuthorId,
+                content,
+                created_at AS createdAt
+            FROM comment 
+            WHERE comment_id = ?
+
+            `, 
+            [commentId]
+        );
+
+        return rows[0];
+
+    }catch(error){
+        throw new CustomError(500, "게시물에 대한 댓글목록 조회 실패");
+    }
+}
 
 export const getCommentsByPostId = async(postId) => {
     try{
@@ -243,7 +268,6 @@ export const getCommentsByPostId = async(postId) => {
 
     }catch(error){
         throw new CustomError(500, "게시물에 대한 댓글목록 조회 실패");
-
     }
 };
 

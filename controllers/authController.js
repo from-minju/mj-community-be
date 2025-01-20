@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
-import { v4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 import {createUser, getUserByEmail, getUserById, getUserByNickname} from "../models/userModel.js";
-import { DefaultProfileImageName } from '../config.js';
 import { validateEmail, validateNickname, validatePassword } from '../utils/validation.js';
 const saltRounds = 10;
 
@@ -25,7 +24,7 @@ export const checkAuthenticationController = async(req, res, next) => {
                 userId: user.userId,
                 email: user.email,
                 nickname: user.nickname,
-                profileImage: user.profileImage || DefaultProfileImageName
+                profileImage: user.profileImage
             }
         });
     }catch(error){
@@ -47,7 +46,7 @@ export const logoutController = async(req, res, next) => {
 export const signupController = async(req, res, next) => {
 
     const { email, password, nickname } = req.body;
-    const profileImage = req.file ? `${req.file.filename}` : DefaultProfileImageName; // 업로드된 파일 경로
+    const profileImage = req.file ? `${req.file.filename}` : null; // 업로드된 파일 경로
     const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
 
     if(!validateEmail(email) || !validatePassword(password) || !validateNickname(nickname)){
@@ -55,7 +54,7 @@ export const signupController = async(req, res, next) => {
     }
 
     const newUser = {
-        userId: v4(),
+        userId: uuidV4(),
         email: email.trim(),
         password: hashedPassword,
         nickname: nickname.trim(),
@@ -86,7 +85,7 @@ export const loginController = async(req, res, next) => {
 
     const {email, password} = req.body;
 
-    if(!email || !password){
+    if(!email || !password || !validateEmail(email) || !validatePassword(password)){
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
     }
 
