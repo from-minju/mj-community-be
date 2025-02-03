@@ -4,6 +4,11 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -43,7 +48,7 @@ app.use(
 );
 
 
-app.use('/uploads', express.static('uploads')); // uploads 폴더를 정적으로 서빙
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(helmet()); // 순서가 express.static 뒤 이어야 함.
 
@@ -62,7 +67,7 @@ app.get('/api', (req, res) => {
 });
 
 app.listen(port, ()=>{
-    console.log(port, '번 포트에서 대기 중');
+    console.log(`Server is running at http://${host}:${port}`);
 });
 
 app.get('/error-test', (req, res, next) => {
