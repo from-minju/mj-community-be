@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,6 +66,54 @@ app.use(errorHandler);
 
 app.get('/api', (req, res) => {
     res.send('Express 시작!');
+});
+
+
+// AWS S3 클라이언트 설정(v3)
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    }
+});
+
+// Presigned URL을 생성
+app.get('/presigned-url', async (req, res) => {
+    try{
+        // res.send("실행중!");
+        console.log(process.env.AWS_ACCESS_KEY_ID);
+
+        const { fileName, fileType } = req.query;
+        if (!fileName || !fileType) {
+            return res.status(400).json({ message: '파일 이름과 파일 타입이 필요합니다.' });
+        }
+
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const filePath = uniqueSuffix + '-' + fileName;
+
+        // S3 PutObjectCommand 생성
+        const command = new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: filePath,
+            ContentType: fileType,
+            //ACL: 'public-read' // 업로드된 파일을 공개적으로 접근 가능하도록 설정 (필요에 따라 변경 가능)
+        });
+
+        // Presigned URL 생성
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+        res.status(200).json({
+            message: 'Presigned URL 생성 성공',
+            presignedUrl,
+            filePath: filePath  // 업로드 후 사용할 S3 경로
+        });
+
+    } catch(error){
+        console.error('[getPresignedUrlController Error]', error);
+        res.status(500).json({ message: 'Presigned URL 생성 실패' });
+    }
+
 });
 
 app.listen(port, ()=>{

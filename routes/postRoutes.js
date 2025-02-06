@@ -12,7 +12,8 @@ const router = express.Router();
 // 게시물 라우터 연결
 router.get('/', getPostsController);
 router.get('/:postId', checkAuth, getPostController);
-router.post('/', checkAuth, upload.single('postImage'), createPostController);
+// router.post('/', checkAuth, upload.single('postImage'), createPostController);
+router.post('/', checkAuth, createPostController);
 router.put('/:postId', checkAuth, upload.single('postImage'), editPostController);
 router.delete('/:postId', checkAuth, deletePostController);
 

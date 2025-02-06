@@ -94,10 +94,9 @@ export const getPostController = async(req, res, next) => {
 
 // POST 게시물 작성
 export const createPostController = async(req, res, next) => {
-    const {title, content} = req.body;
+    const {title, content, postImage} = req.body;
     const postId = uuidV4();
     const userId = req.session.userId;
-    const postImage = req.file ? `${req.file.filename}` : null;
 
     if(!title || !content){
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
