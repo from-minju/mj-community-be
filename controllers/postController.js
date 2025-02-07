@@ -9,7 +9,7 @@ import { createPost, getAllPosts, getPostByPostId, editPost, deletePost,
     getLikesByPostId,
     checkIfUserLikedPost,
     getCommentByCommentId,} from "../models/postModel.js";
-import { deleteImage, getFilePath } from "../utils/fileUtils.js";
+import { deleteImageFromS3 } from "../utils/fileUtils.js";
 import { formatToKoreanTime } from "../utils/timeUtils.js";
 import validator from 'validator';
 import { validateComment, validatePostContent, validateTitle } from "../utils/validation.js";
@@ -139,7 +139,7 @@ export const editPostController = async(req, res, next) => {
     const postId = req.params.postId;
     const userId = req.session.userId;
 
-    const { title, content, isImageDeleted } = req.body;
+    const { title, content, postImage, isImageDeleted } = req.body;
 
     if(!title || !content){
         return res.status(400).json({ message: '유효하지 않은 요청입니다.'});
@@ -169,18 +169,17 @@ export const editPostController = async(req, res, next) => {
         }
 
         // 이미지가 삭제된 경우
-        if (isImageDeleted === 'true') {
+        if (isImageDeleted === true) {
             editedPostData.postImage = null;
 
             if (previousImageName) {
-                const filePath = getFilePath(previousImageName);
-                deleteImage(filePath);
+                await deleteImageFromS3(previousImageName);
             }
         }
 
         // 이미지가 새로 업로드된 경우
-        if (req.file) {
-            editedPostData.postImage = req.file.filename;
+        if (postImage) {
+            editedPostData.postImage = postImage;
         }
 
         // 이미지가 변경되지 않은 경우는 기존 데이터 유지
@@ -209,8 +208,7 @@ export const deletePostController = async(req, res, next) => {
         //uploads의 이미지 삭제하기
         const previousPostImageName = await getPostImageNameByPostId(postId);
         if(previousPostImageName){
-            const filePath = getFilePath(previousPostImageName);
-            deleteImage(filePath);
+            await deleteImageFromS3(previousPostImageName);
         }
         
         await deletePost(postId);

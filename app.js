@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +23,7 @@ import postsRouter from './routes/postRoutes.js';
 import usersRouter from './routes/userRoutes.js';
 import { logRequest } from './middleware/logMiddleware.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
+import { s3Client } from './utils/fileUtils.js';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -69,17 +70,9 @@ app.get('/api', (req, res) => {
 });
 
 
-// AWS S3 클라이언트 설정(v3)
-const s3Client = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    }
-});
 
 // Presigned URL을 생성
-app.get('/presigned-url', async (req, res) => {
+app.get('/api/presigned-url', async (req, res) => {
     try{
         // res.send("실행중!");
         console.log(process.env.AWS_ACCESS_KEY_ID);

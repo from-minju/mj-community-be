@@ -45,8 +45,7 @@ export const logoutController = async(req, res, next) => {
 
 export const signupController = async(req, res, next) => {
 
-    const { email, password, nickname } = req.body;
-    const profileImage = req.file ? `${req.file.filename}` : null; // 업로드된 파일 경로
+    const { email, password, nickname, profileImage } = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds); // 비밀번호 암호화
 
     if(!validateEmail(email) || !validatePassword(password) || !validateNickname(nickname)){
