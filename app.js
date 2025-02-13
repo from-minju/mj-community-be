@@ -74,9 +74,6 @@ app.get('/api', (req, res) => {
 // Presigned URL을 생성
 app.get('/api/presigned-url', async (req, res) => {
     try{
-        // res.send("실행중!");
-        console.log(process.env.AWS_ACCESS_KEY_ID);
-
         const { fileName, fileType } = req.query;
         if (!fileName || !fileType) {
             return res.status(400).json({ message: '파일 이름과 파일 타입이 필요합니다.' });
@@ -90,7 +87,6 @@ app.get('/api/presigned-url', async (req, res) => {
             Bucket: process.env.S3_BUCKET_NAME,
             Key: filePath,
             ContentType: fileType,
-            //ACL: 'public-read' // 업로드된 파일을 공개적으로 접근 가능하도록 설정 (필요에 따라 변경 가능)
         });
 
         // Presigned URL 생성

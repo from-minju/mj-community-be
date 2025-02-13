@@ -73,7 +73,9 @@ http://localhost:8000
 - HTML, CSS, JavaScript
 
 ### 기타
-- Multer: 이미지 업로드
+- AWS S3 (Presigned URL) : 이미지 업로드 처리
+- AWS Cloudfront (CDN)
+- Nginx : 리버스 프록시
 - UUID: 고유 식별자 생성
 - 인증/인가: 쿠키 및 세션
 

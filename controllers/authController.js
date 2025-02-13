@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { v4 as uuidV4 } from "uuid";
 import {createUser, getUserByEmail, getUserById, getUserByNickname} from "../models/userModel.js";
 import { validateEmail, validateNickname, validatePassword } from '../utils/validation.js';
