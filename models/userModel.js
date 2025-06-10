@@ -1,7 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { pool } from '../config/dbConfig.js';
-import { deleteImage, getFilePath } from '../utils/fileUtils.js';
+import { deleteImageFromS3 } from '../utils/fileUtils.js';
 import { CustomError } from '../utils/customError.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -178,7 +178,7 @@ export const deleteUserProfileByUserId = async(userId) => {
         const profileImage = await getProfileImageNameByUserId(userId);
 
         if(profileImage){
-            deleteImage(getFilePath(profileImage));
+            await deleteImageFromS3(profileImage);
         }
 
         await pool.query(`

@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { editProfile, getUserById, changePassword, getProfileImageNameByUserId, deleteUserProfileByUserId, getUserByNickname, getUserByEmail } from "../models/userModel.js";
-import { deleteImage, getFilePath } from "../utils/fileUtils.js";
+import { deleteImageFromS3 } from "../utils/fileUtils.js";
 import { deleteCommentsByUserId, deleteLikesByUserId, deletePostsByUserId } from "../models/postModel.js";
 import { validateNickname, validatePassword } from '../utils/validation.js';
 const saltRounds = 10;
@@ -26,7 +26,7 @@ export const getUserProfileController = async (req, res, next) => {
 
 export const editProfileController = async(req, res, next) => {
     const userId = req.session.userId;
-    const { isProfileImageChanged, nickname } = req.body;
+    const { isProfileImageChanged, nickname, profileImage } = req.body;
 
     if(!validateNickname(nickname)){
         return res.status(400).json({ message: "유효하지 않은 요청입니다." });
@@ -34,21 +34,21 @@ export const editProfileController = async(req, res, next) => {
 
     try{
         const previousImageName = await getProfileImageNameByUserId(userId);
-        let profileImageName = previousImageName;
+        let profileImagePath = previousImageName;
 
         // 프로필 이미지에 변경이 있었다면,
-        if(isProfileImageChanged === 'true'){
-            profileImageName = req.file ? req.file.filename : null;
+        if(isProfileImageChanged === true){
+            profileImagePath = profileImage;
 
             // 기존 프로필 이미지 삭제
             if(previousImageName){
-                deleteImage(getFilePath(previousImageName));
+                await deleteImageFromS3(previousImageName);
             }
         }
 
         const editedUserData = {
             nickname: req.body.nickname,
-            profileImage: profileImageName
+            profileImage: profileImagePath
         }
 
         await editProfile(userId, editedUserData);

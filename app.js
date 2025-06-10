@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +23,7 @@ import postsRouter from './routes/postRoutes.js';
 import usersRouter from './routes/userRoutes.js';
 import { logRequest } from './middleware/logMiddleware.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
+import { s3Client } from './utils/fileUtils.js';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -64,6 +67,42 @@ app.use(errorHandler);
 
 app.get('/api', (req, res) => {
     res.send('Express 시작!');
+});
+
+
+
+// Presigned URL을 생성
+app.get('/api/presigned-url', async (req, res) => {
+    try{
+        const { fileName, fileType } = req.query;
+        if (!fileName || !fileType) {
+            return res.status(400).json({ message: '파일 이름과 파일 타입이 필요합니다.' });
+        }
+
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const filePath = uniqueSuffix + '-' + fileName;
+
+        // S3 PutObjectCommand 생성
+        const command = new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: filePath,
+            ContentType: fileType,
+        });
+
+        // Presigned URL 생성
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+        res.status(200).json({
+            message: 'Presigned URL 생성 성공',
+            presignedUrl,
+            filePath: filePath  // 업로드 후 사용할 S3 경로
+        });
+
+    } catch(error){
+        console.error('[getPresignedUrlController Error]', error);
+        res.status(500).json({ message: 'Presigned URL 생성 실패' });
+    }
+
 });
 
 app.listen(port, ()=>{

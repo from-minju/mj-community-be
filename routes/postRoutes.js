@@ -4,7 +4,6 @@ import {
     getCommentsController, createCommentController, editCommentController, deleteCommentController,
     likePostController, unlikePostController
 } from '../controllers/postController.js';
-import { upload } from '../middleware/multer.js';
 import { checkAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -12,8 +11,8 @@ const router = express.Router();
 // 게시물 라우터 연결
 router.get('/', getPostsController);
 router.get('/:postId', checkAuth, getPostController);
-router.post('/', checkAuth, upload.single('postImage'), createPostController);
-router.put('/:postId', checkAuth, upload.single('postImage'), editPostController);
+router.post('/', checkAuth, createPostController);
+router.put('/:postId', checkAuth, editPostController);
 router.delete('/:postId', checkAuth, deletePostController);
 
 // 댓글 라우터 연결
