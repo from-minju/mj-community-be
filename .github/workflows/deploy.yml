@@ -33,32 +33,30 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > key.pem
           chmod 600 key.pem
 
-      - name: Deploy to EC2
+      - name: SSH into EC2 and run container
         run: |
           HOST=${{ secrets.EC2_HOST }}
           USER=${{ secrets.EC2_USER }}
 
           ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST "
-            echo 'PORT=${{ secrets.EC2_PORT }}' > ~/mj-community-be/.env && \
-            echo 'HOST=${{ secrets.EC2_HOST }}' >> ~/mj-community-be/.env && \
-            echo 'DB_HOST=${{ secrets.DB_HOST }}' >> ~/mj-community-be/.env && \
-            echo 'DB_USER=${{ secrets.DB_USER }}' >> ~/mj-community-be/.env && \
-            echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> ~/mj-community-be/.env && \
-            echo 'DB_NAME=${{ secrets.DB_NAME }}' >> ~/mj-community-be/.env && \
-            echo 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' >> ~/mj-community-be/.env && \
-            echo 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' >> ~/mj-community-be/.env && \
-            echo 'AWS_REGION=${{ secrets.AWS_REGION }}' >> ~/mj-community-be/.env && \
-            echo 'S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}' >> ~/mj-community-be/.env && \
+            docker rm -f mj-community-be || true &&
 
-            docker rm -f mj-community-be || true && \
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }} &&
 
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }} && \
-
-            docker pull ghcr.io/${{ github.repository_owner }}/mj-community-be:latest && \
+            docker pull ghcr.io/${{ github.repository_owner }}/mj-community-be:latest &&
 
             docker run -d \
               --name mj-community-be \
-              --env-file ~/mj-community-be/.env \
               -p 3000:3000 \
+              -e PORT=${{ secrets.EC2_PORT }} \
+              -e HOST=${{ secrets.EC2_HOST }} \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+              -e AWS_REGION=${{ secrets.AWS_REGION }} \
+              -e S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
               ghcr.io/${{ github.repository_owner }}/mj-community-be:latest
           "
